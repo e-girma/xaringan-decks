@@ -1,0 +1,126 @@
+---
+title: "GxE Analysis Workshop"
+author: "Ellena Girma"
+date: "2022/05/27 (updated: `r Sys.Date()`)"
+output:
+  xaringan::moon_reader:
+    css: xaringan-themer.css
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE,fig.retina=3 }
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+```{r xaringan-themer, include=FALSE, warning=FALSE}
+library(xaringanthemer)
+style_mono_accent(
+  base_color = "#1c5253",
+  header_font_google = google_font("Josefin Sans"),
+  text_font_google   = google_font("Montserrat", "300", "300i"),
+  code_font_google   = google_font("Fira Mono")
+)
+```
+
+```{r style-share-again, echo=FALSE}
+xaringanExtra::style_share_again(
+  share_buttons = c("twitter", "linkedin", "pocket")
+)
+```
+
+
+```{r xaringan-panelset, echo=FALSE}
+xaringanExtra::use_panelset()
+```
+
+## Contents
+
+.pull-left[
+Introduction to GxE Analysis
+
+Exploratory Data Analysis
+
+Means
+
+ANOVA
+
+GxE and GGE Biplots
+
+Stability 
+
+AMMI (PCA)
+]
+
+
+.pull-right[
+Introduction to GxE Analysis
+
+Exploratory Data Analysis
+
+Means
+
+ANOVA
+
+GxE and GGE Biplots
+
+Stability 
+
+AMMI (PCA)
+]
+
+---
+
+## Side by side v1 
+
+.pull-left[
+```{r plot-last, fig.show='hide'}
+
+```
+]
+
+.pull-right[
+```{r ref.label = 'plot-last', echo = FALSE}
+
+```
+]
+
+---
+
+## Side by side v2
+
+.pull-left[
+```{r plot-first, echo = FALSE}
+
+```
+]
+.pull-right[
+```{r ref.label = 'plot-first', fig.show = 'hide'}
+
+```
+]
+
+
+---
+
+
+## Panels (2 panesl of rcode and plot)
+
+.panelset[
+.panel[.panel-name[R Code]
+
+```{r panel-chunk, fig.show='hide'}
+# ... r code ...
+```
+]
+
+.panel[.panel-name[Plot]
+
+![](README_files/figure-gfm/panel-chunk-1.png)
+]
+]
+
+
