@@ -1,0 +1,20 @@
+---
+title: "TARI Bean Program Workshop"
+subtitle: "GxE Analysis with R"
+author: "Ellena Girma"
+institute: "CIAT Arusha"
+date: "2022/05/27 (updated: `r Sys.Date()`)"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+background-image: url()
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+```
