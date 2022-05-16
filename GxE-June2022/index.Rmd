@@ -37,90 +37,349 @@ xaringanExtra::style_share_again(
 xaringanExtra::use_panelset()
 ```
 
-## Contents
+
+## Intro to Presentation
+
+Hello Everyone! My name is Ellena Girma and I am a data analyst intern at CIAT. 
+
+The goal of this presentation is to introduce you to R and packages in R that can help you with running GxE studies. I will take you through the GxE analysis workflow that I use. 
+
+---
+
+## Introduction to GxE Studies 
 
 .pull-left[
-Introduction to GxE Analysis
+Understanding Genotype-Environment (GxE) Interaction
+* GXE interaction: the interaction of genotypes and environmental conditions and its joint effect on the traits being selected
+
+* Is there a pattern of phenotypic expression of the selected trait across various environmental conditions? 
+]
+
+.pull-right[
+Selecting & recommending genotypes that have wider or more specific adaptation across various environmental conditions
+
+* Stability: Does the performance of the genotype stay the same across environments?
+
+* Yield Production: Does the genotype perform well across environments? 
+]
+
+---
+
+## My Workflow: How I get from data to 
+
+
+Data Preparation 
 
 Exploratory Data Analysis
 
-Means
+Means and High Yielding Genotypes & Locations
 
-ANOVA
+Analysis of Variance (ANOVA)
 
-GxE and GGE Biplots
+GGE Biplots
 
-Stability 
+Stability Analysis
 
-AMMI (PCA)
-]
-
-
-.pull-right[
-Introduction to GxE Analysis
-
-Exploratory Data Analysis
-
-Means
-
-ANOVA
-
-GxE and GGE Biplots
-
-Stability 
-
-AMMI (PCA)
-]
+Additive Main-Effects Multiplicative Interaction (AMMI)
 
 ---
 
-## Side by side v1 
+## Intro to R and R packages 
 
-.pull-left[
-```{r plot-last, fig.show='hide'}
+Let's take a quick tour of R. 
 
-```
-]
-
-.pull-right[
-```{r ref.label = 'plot-last', echo = FALSE}
-
-```
-]
+For this workshop, we'll be using the tidyverse and metan packages.
 
 ---
 
-## Side by side v2
+## Importing Data and Loading Packages
 
-.pull-left[
-```{r plot-first, echo = FALSE}
-
-```
-]
-.pull-right[
-```{r ref.label = 'plot-first', fig.show = 'hide'}
+```{r set-up-workspace-hidden, include = FALSE}
+library(xaringan)
+library(xaringanthemer)
+library(xaringanExtra)
 
 ```
-]
 
+```{r importing-and-loading, message = FALSE}
+
+#loading metan package into workspace
+library(metan)
+
+#loading tidyverse package into workspace
+library(tidyverse)
+
+bean_data <- read.csv("C:/Users/eruph/Documents/TB/Importing_Blog/csvfile.csv", header=TRUE, colClasses = c(rep("factor", 3), rep("numeric", 5)))
+
+```
 
 ---
 
+## Exploratory Data Analysis (EDA)
 
-## Panels (2 panesl of rcode and plot)
+Exploring and summarizing datasets using summary statistics and plots/data visualization methods.
+
+EDA allows us to:
+
+* find outliers
+* see how our data is distributed
+* get summary statistics for each variable of interest
+* see the relationship between variables
+
+---
+
+## Summary Statistics
 
 .panelset[
 .panel[.panel-name[R Code]
+```{r summary_stats-p1}
 
-```{r panel-chunk, fig.show='hide'}
-# ... r code ...
+#summary of data
+summary <- summary(bean_data)
+
+#count number of fields that are missing
+sum(is.na(bean_data))
+
+#descriptive stats using metan package
+ds_all <- desc_stat(bean_data, stats= "main")
+
+
 ```
 ]
 
-.panel[.panel-name[Plot]
+.panel[.panel-name[Summary Output]
+```{r summary_stats-pt2}
 
-![](README_files/figure-gfm/panel-chunk-1.png)
+print(summary)
+
+```
+]
+
+.panel[.panel-name[desc_stats Output]
+```{r summary_stats-pt3}
+
+print(ds_all)
+
+```
 ]
 ]
+
+---
+
+## Checking for Outliers Pt 1: Visuals
+
+.panelset[
+```{r outliers, panelset = TRUE}
+##Checking for possible outliers using metan package 
+#Checking for potential outliers in yield variable
+#change var = var_name to get potential outliers for another variable 
+find_outliers(bean_data, var = yield, plots =T)
+
+```
+]
+
+---
+
+## Checking for Outliers Pt 2
+
+```{r yield-outliers}
+#potential outliers
+yield_outliers <- c(10, 28, 32, 35, 58, 66, 68, 69, 74 ,75, 84, 93, 109, 127, 131, 134, 157, 165, 167, 168, 173, 174, 183, 192, 208, 209, 226, 230, 233, 256, 264, 266, 267, 272, 273, 282, 291)
+
+yo <- bean_data %>%
+  slice(yield_outliers) %>%
+  arrange(Genotype) %>%
+  slice(1:10)
+
+yo
+```
+
+---
+
+## Grand Yield Means Across Genotype
+
+.panelset[
+.panel[.panel-name[Rcode]
+```{r grand-yield-means-p1}
+#getting means by Genotype
+mg <- means_by(bean_data, Genotype)
+
+#Creating a new object with Ordered Means by Genotype
+mg_y <- mg %>%
+  select(Genotype, yield) %>%
+  arrange(desc(yield))
+```
+]
+
+.panel[.panel-name[Output]
+```{r grand-yield-means-p2}
+slice(mg_y, 1:10)
+```
+]
+]
+
+---
+
+## Yield Means Across Locations 
+
+.panelset[
+.panel[.panel-name[Code]
+```{r yield-means-location}
+#getting means for all variables by Location
+me <- means_by(bean_data, Site)
+
+#Creating a new object with Ordered Means by Location
+me_y <- me %>%
+  select(Site, yield) %>%
+  arrange(desc(yield))
+```
+]
+
+.panel[.genotype-means[Output]
+```{r yield-means-location-print}
+me_y
+```
+]
+]
+
+---
+
+## Yield Ranks and Top Performers
+
+This code shows the Top Performing Genotype at Each Location. 
+
+.pull-left[
+```{r top-genotype-across-loc}
+#top performing genotype in each env for yield
+win <- ge_winners(bean_data, Site, Genotype, resp = yield)
+```
+]
+
+.pull-right[
+```{r print-top-genotype-across-loc}
+print(win)
+```
+]
+
+---
+
+## Analysis of Variance (ANOVA): Introduction 
+
+The metan package 
+
+---
+
+## ANOVA for RCBD using Metan
+
+The metan package has different functions for single site and combined site ANOVA. anova_joint() is for combined site analysis.
+
+.panelset[
+```{r rcbd-anova, panelset = c(source = "R Code" , output = "ANOVA Table")}
+
+#Running joint anova for rcbd layout/plot design
+rcbd_anova <- anova_joint(bean_data, env = "Site", gen = "Genotype", rep = "Rep", resp = everything())
+
+#getting the ANOVA table for yield 
+rcbd_anova_yield <- rcbd_anova$yield$anova
+
+```
+]
+
+---
+
+## Estimating Variance Components Pt 1
+
+Variance components can be calculated using the results from the ANOVA table.  
+
+.panelset[
+.panel[.panel-name[Calculating Values]
+```{r variance-components-p1}
+#variance of line
+Vl.yd <- (rcbd_anova_yield[3,4] - rcbd_anova_yield[4,4])/(3*3)
+
+#variance of line by site
+Vls.yd <- (rcbd_anova_yield[4,4] - rcbd_anova_yield[5,4])/(3)
+
+#variance of error
+Ve.yd <- rcbd_anova_yield[5,4]
+
+#Broad sense hertitability 
+H2.yd <- Vl.yd/(Vl.yd + Vls.yd + Ve.yd)
+
+#Hertitability of Line Means
+H2L.yd <- Vl.yd/(Vl.yd + Vls.yd/3 + Ve.yd/(3*3))
+
+```
+]
+
+.panel[.panel-name[Combing Values into Table]
+```{r variance-components-p2}
+comb.site.vc <- cbind(rbind(Vl.yd, Vls.yd, Ve.yd, H2.yd, H2L.yd))
+
+colnames(comb.site.vc) <- c("Yield")
+rownames(comb.site.vc) = c("V of Line", "V of Line x Site", "V of Error", "Broad Sense Heritability", "Heritability of Line Means")
+
+
+```
+]
+
+.panel[.panel-name[Final Output]
+```{r variance-components-table}
+print(comb.site.vc)
+```
+]
+]
+
+---
+
+## Estimating Variance Components Pt 2
+
+Divide all by VP? bc expressed as proportions to the phenotypic variances for yield across the environments
+
+---
+
+## GGE Biplots
+
+
+
+
+---
+
+## Stability 
+
+---
+
+## AMMI 
+
+---
+
+## AMMI Biplot
+
+---
+
+## Ranks: Yield Output and Stability 
+
+ASV and YSI are the metrics I use/come across most frequently. Ranking genotypes using these metrics is useful because it takes into consideration both yield output and stability. 
+
+---
+
+
+---
+
+## Follow Up Resources 
+
+The link to this presentation will be emailed to you, along with a pdf copy.
+
+Check out my <a href = rforplantbreeders.netlify.app> blog </a> for more detailed written tutorials for plant breeders who want to learn how to use R. 
+
+Current Posts:
+  <a href = rforplantbreeders.netlify.app> Introduction to R </a>
+  <a href = rforplantbreeders.netlify.app> Importing in R </a>
+
+---
+
+## QnA 
+
+---
 
 
