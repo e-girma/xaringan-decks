@@ -7,6 +7,10 @@
     <script src="index_files/header-attrs-2.13/header-attrs.js"></script>
     <link href="index_files/panelset-0.2.6/panelset.css" rel="stylesheet" />
     <script src="index_files/panelset-0.2.6/panelset.js"></script>
+    <script src="index_files/clipboard-2.0.6/clipboard.min.js"></script>
+    <link href="index_files/xaringanExtra-clipboard-0.2.6/xaringanExtra-clipboard.css" rel="stylesheet" />
+    <script src="index_files/xaringanExtra-clipboard-0.2.6/xaringanExtra-clipboard.js"></script>
+    <script>window.xaringanExtraClipboard(null, {"button":"Copy to clipboard","success":"Copied","error":"Press Ctrl + C para to copy"})</script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
   <body>
@@ -20,7 +24,7 @@ class: center, middle, inverse, title-slide
 ### Ellena Girma
 ]
 .date[
-### 2022/05/27 (updated: 2022-05-16)
+### 2022/05/27 (updated: 2022-05-18)
 ]
 
 ---
@@ -42,11 +46,15 @@ class: center, middle, inverse, title-slide
 
 
 
-## Intro to Presentation
+
+
+## Introduction to the Presentation
 
 Hello Everyone! My name is Ellena Girma and I am a data analyst intern at CIAT. 
 
-The goal of this presentation is to introduce you to R and packages in R that can help you with running GxE studies. I will take you through the GxE analysis workflow that I use. 
+The goal of this presentation is to demonstrate how R can be used to run GxE analyses.
+
+I will take you through the workflow that I use to run my GxE analysis. For each part, I will cover the main functions that I use and what outputs/results you can expect to get.
 
 ---
 
@@ -69,22 +77,25 @@ Selecting &amp; recommending genotypes that have wider or more specific adaptati
 
 ---
 
-## My Workflow: How I get from data to 
+## My Workflow
 
+#### In this presentation I will be sharing the process I use to get from raw data to results. I will be focusing on the response variable yield but the code I use can be altered for other response variables too. 
 
-Data Preparation 
+Workflow:
 
-Exploratory Data Analysis
+* Data Preparation 
 
-Means and High Yielding Genotypes &amp; Locations
+* Exploratory Data Analysis
 
-Analysis of Variance (ANOVA)
+* Means and High Yielding Genotypes &amp; Locations
 
-GGE Biplots
+* Analysis of Variance (ANOVA)
 
-Stability Analysis
+* GGE Biplots
 
-Additive Main-Effects Multiplicative Interaction (AMMI)
+* Stability Analysis
+
+* Additive Main-Effects Multiplicative Interaction (AMMI)
 
 ---
 
@@ -96,7 +107,7 @@ For this workshop, we'll be using the tidyverse and metan packages.
 
 ---
 
-## Importing Data and Loading Packages
+## Loading Packages and Importing Dat
 
 
 
@@ -111,18 +122,21 @@ library(tidyverse)
 bean_data &lt;- read.csv("C:/Users/eruph/Documents/TB/Importing_Blog/csvfile.csv", header=TRUE, colClasses = c(rep("factor", 3), rep("numeric", 5)))
 ```
 
+
+
+
 ---
 
 ## Exploratory Data Analysis (EDA)
 
-Exploring and summarizing datasets using summary statistics and plots/data visualization methods.
+#### Exploring and summarizing datasets using summary statistics and plots/data visualization methods.
 
 EDA allows us to:
 
 * find outliers
 * see how our data is distributed
-* get summary statistics for each variable of interest
 * see the relationship between variables
+* get summary statistics for each variable of interest
 
 ---
 
@@ -149,7 +163,7 @@ ds_all &lt;- desc_stat(bean_data, stats= "main")
 ```
 ]
 
-.panel[.panel-name[Summary Output]
+.panel[.panel-name[summary output]
 
 ```r
 print(summary)
@@ -164,39 +178,40 @@ print(summary)
 ##                       Bilfa Uyole    :  9   3rd Qu.:42.00   3rd Qu.:18.00  
 ##                       Buji           :  9   Max.   :48.00   Max.   :46.60  
 ##                       (Other)        :837                                  
-##    seeds.pod           sw            yield       
-##  Min.   :2.600   Min.   :15.30   Min.   : 498.2  
-##  1st Qu.:4.000   1st Qu.:25.50   1st Qu.:1282.2  
-##  Median :4.800   Median :35.00   Median :1601.7  
-##  Mean   :4.816   Mean   :35.22   Mean   :1754.3  
-##  3rd Qu.:5.600   3rd Qu.:42.00   3rd Qu.:2048.9  
-##  Max.   :7.600   Max.   :67.00   Max.   :5152.6  
+##    seeds.pod           sw            yield            Gen_id  
+##  Min.   :2.600   Min.   :15.30   Min.   : 498.2   Min.   : 1  
+##  1st Qu.:4.000   1st Qu.:25.50   1st Qu.:1282.2   1st Qu.:25  
+##  Median :4.800   Median :35.00   Median :1601.7   Median :50  
+##  Mean   :4.816   Mean   :35.22   Mean   :1754.3   Mean   :50  
+##  3rd Qu.:5.600   3rd Qu.:42.00   3rd Qu.:2048.9   3rd Qu.:75  
+##  Max.   :7.600   Max.   :67.00   Max.   :5152.6   Max.   :99  
 ## 
 ```
 ]
 
-.panel[.panel-name[desc_stats Output]
+.panel[.panel-name[desc_stats output]
 
 ```r
 print(ds_all)
 ```
 
 ```
-## # A tibble: 5 x 9
+## # A tibble: 6 x 9
 ##   variable      cv    max    mean median   min sd.amo      se      ci
 ##   &lt;chr&gt;      &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
 ## 1 DF          7.02   48     39.5    39    33     2.77  0.093   0.182 
-## 2 pods.plant 48.1    46.6   14.8    13.4   2.6   7.11  0.238   0.467 
-## 3 seeds.pod  21.3     7.6    4.82    4.8   2.6   1.02  0.0343  0.0673
-## 4 sw         32.9    67     35.2    35    15.3  11.6   0.389   0.763 
-## 5 yield      43.0  5153.  1754.   1602.  498.  754.   25.3    49.6
+## 2 Gen_id     57.2    99     50      50     1    28.6   0.958   1.88  
+## 3 pods.plant 48.1    46.6   14.8    13.4   2.6   7.11  0.238   0.467 
+## 4 seeds.pod  21.3     7.6    4.82    4.8   2.6   1.02  0.0343  0.0673
+## 5 sw         32.9    67     35.2    35    15.3  11.6   0.389   0.763 
+## 6 yield      43.0  5153.  1754.   1602.  498.  754.   25.3    49.6
 ```
 ]
 ]
 
 ---
 
-## Checking for Outliers Pt 1: Visuals
+#### Checking for Outliers Pt 1: Visuals
 
 .panelset[
 .panel[.panel-name[Code]
@@ -235,8 +250,12 @@ find_outliers(bean_data, var = yield, plots =T)
 
 ---
 
-## Checking for Outliers Pt 2
+#### Checking for Outliers Pt 2
 
+Let's take a look at which data point are the outliers. Are they all the same location or same genotypes? 
+
+.panelset[
+.panel[.panel-name[Code]
 
 ```r
 #potential outliers
@@ -245,31 +264,49 @@ yield_outliers &lt;- c(10, 28, 32, 35, 58, 66, 68, 69, 74 ,75, 84, 93, 109, 127,
 yo &lt;- bean_data %&gt;%
   slice(yield_outliers) %&gt;%
   arrange(Genotype) %&gt;%
-  slice(1:10)
+  slice(1:15)
 
 yo
 ```
 
+
+
+]
+
+.panel[.panel-name[Output]
+
 ```
-##      Site Rep      Genotype DF pods.plant seeds.pod sw  yield
-## 1  Selian   1        Cheupe 44       44.8       7.6 33 5085.3
-## 2  Selian   2        Cheupe 44       46.2       7.4 33 5127.8
-## 3  Selian   3        Cheupe 43       46.6       6.8 33 5152.6
-## 4  Selian   3 Chumba Neroza 38       15.4       5.8 31 3478.7
-## 5  Selian   1        Kanade 38       24.2       5.4 42 3241.9
-## 6  Selian   2        Kanade 38       23.8       5.4 42 3245.4
-## 7  Selian   3        Kanade 39       24.8       5.4 42 3291.5
-## 8  Selian   1       Katuku2 39       36.2       5.2 40 4309.2
-## 9  Selian   2       Katuku2 39       35.2       5.0 40 4256.0
-## 10 Selian   3       Katuku2 39       35.0       5.4 40 4245.4
+##      Site Rep      Genotype DF pods.plant seeds.pod sw  yield Gen_id
+## 1  Selian   1        Cheupe 44       44.8       7.6 33 5085.3     10
+## 2  Selian   2        Cheupe 44       46.2       7.4 33 5127.8     10
+## 3  Selian   3        Cheupe 43       46.6       6.8 33 5152.6     10
+## 4  Selian   3 Chumba Neroza 38       15.4       5.8 31 3478.7     11
+## 5  Selian   1        Kanade 38       24.2       5.4 42 3241.9     28
+## 6  Selian   2        Kanade 38       23.8       5.4 42 3245.4     28
+## 7  Selian   3        Kanade 39       24.8       5.4 42 3291.5     28
+## 8  Selian   1       Katuku2 39       36.2       5.2 40 4309.2     32
+## 9  Selian   2       Katuku2 39       35.2       5.0 40 4256.0     32
+## 10 Selian   3       Katuku2 39       35.0       5.4 40 4245.4     32
+## 11 Selian   1        Kikobe 39       35.2       6.2 27 3306.3     35
+## 12 Selian   2        Kikobe 39       36.8       6.4 27 3285.1     35
+## 13 Selian   3        Kikobe 39       34.0       5.8 27 3355.9     35
+## 14 Selian   1  Nyeupe Kubwa 39       27.6       5.8 35 4419.1     58
+## 15 Selian   2  Nyeupe Kubwa 39       27.0       6.2 35 4298.6     58
 ```
+
+
+
+]
+]
 
 ---
 
-## Grand Yield Means Across Genotype
+## Grand Mean Yield Across Locations
+
+We can see the grand Mean Yield for each genotype across all three locations using the means_by() function.  
 
 .panelset[
-.panel[.panel-name[Rcode]
+.panel[.panel-name[R Code]
 
 ```r
 #getting means by Genotype
@@ -282,7 +319,7 @@ mg_y &lt;- mg %&gt;%
 ```
 ]
 
-.panel[.panel-name[Output]
+.panel[.panel-name[Table]
 
 ```r
 slice(mg_y, 1:10)
@@ -308,7 +345,9 @@ slice(mg_y, 1:10)
 
 ---
 
-## Yield Means Across Locations 
+## Yield Means Across Genotypes
+
+Now, let's take a look at the grand mean at each locations across all 99 genotypes using the means_by() function. 
 
 .panelset[
 .panel[.panel-name[Code]
@@ -343,151 +382,126 @@ me_y
 
 ---
 
-## Yield Ranks and Top Performers
+## Top Performers at Each Location
 
-This code shows the Top Performing Genotype at Each Location. 
+We can use the ge_winners() function to get the top performing genotype at each location Across all response variables. 
 
-.pull-left[
 
 ```r
 #top performing genotype in each env for yield
-win &lt;- ge_winners(bean_data, Site, Genotype, resp = yield)
+win &lt;- ge_winners(bean_data, Site, Genotype, resp = everything(), type = "winners")
 ```
-]
 
-.pull-right[
 
 ```r
 print(win)
 ```
 
 ```
-## # A tibble: 3 x 2
-##   ENV    yield    
-##   &lt;fct&gt;  &lt;chr&gt;    
-## 1 Selian Cheupe   
-## 2 SUA    Jabeyila 
-## 3 Uyole  Selian 14
+## # A tibble: 3 x 7
+##   ENV    DF              pods.plant   seeds.pod sw          yield     Gen_id
+##   &lt;fct&gt;  &lt;chr&gt;           &lt;chr&gt;        &lt;chr&gt;     &lt;chr&gt;       &lt;chr&gt;     &lt;chr&gt; 
+## 1 Selian Kamosi          Cheupe       Cheupe    Lyamungo 90 Cheupe    Zawadi
+## 2 SUA    Kaisho kamugole Cheupe       Kaempu    Lyamungo 90 Jabeyila  Zawadi
+## 3 Uyole  Selian 15       Wifi Nyegela Cheupe    Selian 15   Selian 14 Zawadi
 ```
-]
 
 ---
 
 ## Analysis of Variance (ANOVA): Introduction 
 
-The metan package 
+Running an ANOVA allows us to 
+
+* see if genotype main effect, environment main effect and GxE interaction effect are significant
+
+* see which effect contributes most to the variation in performance of the different traits
+
+##### The metan package provides &lt;a href = "https://tiagoolivoto.github.io/metan/reference/index.html"&gt;many functions&lt;/a&gt; that can be used to run ANOVA. Different functions are available based on the ANOVA type (one-way, two-way), type of model (fixed or mixed effect), etc. 
 
 ---
 
-## ANOVA for RCBD using Metan
+## ANOVA for RCBD
 
-The metan package has different functions for single site and combined site ANOVA. anova_joint() is for combined site analysis.
+anova_joint() is the function used for combined site analysis.
+
+
 
 .panelset[
 .panel[.panel-name[R Code]
 
 ```r
-#Running joint anova for rcbd layout/plot design
-rcbd_anova &lt;- anova_joint(bean_data, env = "Site", gen = "Genotype", rep = "Rep", resp = everything())
+#Running joint anova for rcbd layout/plot design for all repsonse variables
+anova_joint(bean_data, env = "Site", gen = "Genotype", rep = "Rep", resp = everything())
+```
 
+```
+## Warning in anova.lm(model): ANOVA F-tests on an essentially perfect fit are
+## unreliable
+```
+]
+.panel[.panel-name[Yield ANOVA Table]
+
+```r
 #getting the ANOVA table for yield 
 rcbd_anova_yield &lt;- rcbd_anova$yield$anova
+rcbd_anova_yield
 ```
 
-
-
+```
+##      Source          Df      Sum Sq     Mean Sq     F value        Pr(&gt;F)
+## 1       ENV    2.000000 158874976.4 79437488.20 3943.977619  0.000000e+00
+## 2  REP(ENV)    6.000000    759885.9   126647.66    6.287907  2.023559e-06
+## 3       GEN   98.000000 199047400.1  2031095.92  100.841517 1.451699e-310
+## 4   GEN:ENV  196.000000 135738882.9   692545.32   34.384059 1.554893e-232
+## 5 Residuals  588.000000  11843181.6    20141.47          NA            NA
+## 6     CV(%)    8.089650          NA          NA          NA            NA
+## 7 MSR+/MSR-    6.288451          NA          NA          NA            NA
+## 8    OVmean 1754.348260          NA          NA          NA            NA
+```
 ]
+.panel[.panel-name[SW ANOVA Table]
 
-.panel[.panel-name[ANOVA Table]
-
-```
-## variable DF 
-## ---------------------------------------------------------------------------
-## Joint ANOVA table
-## ---------------------------------------------------------------------------
-##     Source     Df  Sum Sq Mean Sq F value    Pr(&gt;F)
-##        ENV   2.00  376.14 188.071  744.25 7.96e-162
-##   REP(ENV)   6.00    6.75   1.125    4.45  2.04e-04
-##        GEN  98.00 3804.08  38.817  153.61  0.00e+00
-##    GEN:ENV 196.00 2515.86  12.836   50.80 6.66e-278
-##  Residuals 588.00  148.59   0.253      NA        NA
-##      CV(%)   1.27      NA      NA      NA        NA
-##  MSR+/MSR-   2.59      NA      NA      NA        NA
-##     OVmean  39.54      NA      NA      NA        NA
-## ---------------------------------------------------------------------------
-## 
-## variable pods.plant 
-## ---------------------------------------------------------------------------
-## Joint ANOVA table
-## ---------------------------------------------------------------------------
-##     Source     Df  Sum Sq Mean Sq F value    Pr(&gt;F)
-##        ENV   2.00 11659.5 5829.76 2728.01 3.07e-298
-##   REP(ENV)   6.00    99.8   16.64    7.79  4.47e-08
-##        GEN  98.00 22094.5  225.45  105.50 5.81e-316
-##    GEN:ENV 196.00  9819.5   50.10   23.44 7.16e-190
-##  Residuals 588.00  1256.6    2.14      NA        NA
-##      CV(%)   9.89      NA      NA      NA        NA
-##  MSR+/MSR-  12.30      NA      NA      NA        NA
-##     OVmean  14.78      NA      NA      NA        NA
-## ---------------------------------------------------------------------------
-## 
-## variable seeds.pod 
-## ---------------------------------------------------------------------------
-## Joint ANOVA table
-## ---------------------------------------------------------------------------
-##     Source     Df Sum Sq Mean Sq F value    Pr(&gt;F)
-##        ENV   2.00  22.30 11.1500  129.08  3.35e-47
-##   REP(ENV)   6.00   1.46  0.2439    2.82  1.02e-02
-##        GEN  98.00 684.52  6.9849   80.86 2.02e-284
-##    GEN:ENV 196.00 174.30  0.8893   10.30 9.50e-108
-##  Residuals 588.00  50.79  0.0864      NA        NA
-##      CV(%)   6.10     NA      NA      NA        NA
-##  MSR+/MSR-   2.20     NA      NA      NA        NA
-##     OVmean   4.82     NA      NA      NA        NA
-## ---------------------------------------------------------------------------
-## 
-## variable sw 
-## ---------------------------------------------------------------------------
-## Joint ANOVA table
-## ---------------------------------------------------------------------------
-##     Source     Df   Sum Sq  Mean Sq  F value Pr(&gt;F)
-##        ENV   2.00 27392.55 1.37e+04 51909.69  0.000
-##   REP(ENV)   6.00     2.41 4.02e-01     1.52  0.168
-##        GEN  98.00 85390.27 8.71e+02  3302.39  0.000
-##    GEN:ENV 196.00  6922.38 3.53e+01   133.86  0.000
-##  Residuals 588.00   155.14 2.64e-01       NA     NA
-##      CV(%)   1.46       NA       NA       NA     NA
-##  MSR+/MSR-   2.32       NA       NA       NA     NA
-##     OVmean  35.22       NA       NA       NA     NA
-## ---------------------------------------------------------------------------
-## 
-## variable yield 
-## ---------------------------------------------------------------------------
-## Joint ANOVA table
-## ---------------------------------------------------------------------------
-##     Source      Df   Sum Sq  Mean Sq F value    Pr(&gt;F)
-##        ENV    2.00 1.59e+08 79437488 3943.98  0.00e+00
-##   REP(ENV)    6.00 7.60e+05   126648    6.29  2.02e-06
-##        GEN   98.00 1.99e+08  2031096  100.84 1.45e-310
-##    GEN:ENV  196.00 1.36e+08   692545   34.38 1.55e-232
-##  Residuals  588.00 1.18e+07    20141      NA        NA
-##      CV(%)    8.09       NA       NA      NA        NA
-##  MSR+/MSR-    6.29       NA       NA      NA        NA
-##     OVmean 1754.35       NA       NA      NA        NA
-## ---------------------------------------------------------------------------
-## 
-## All variables with significant (p &lt; 0.05) genotype-vs-environment interaction
-## Done!
+```r
+#getting the ANOVA table for 100g seed weight
+rcbd_anova$sw$anova
 ```
 
+```
+##      Source         Df      Sum Sq      Mean Sq      F value    Pr(&gt;F)
+## 1       ENV   2.000000 27392.54795 1.369627e+04 51909.689778 0.0000000
+## 2  REP(ENV)   6.000000     2.41064 4.017733e-01     1.522745 0.1681973
+## 3       GEN  98.000000 85390.26909 8.713293e+02  3302.389579 0.0000000
+## 4   GEN:ENV 196.000000  6922.37872 3.531826e+01   133.858293 0.0000000
+## 5 Residuals 588.000000   155.14269 2.638481e-01           NA        NA
+## 6     CV(%)   1.458387          NA           NA           NA        NA
+## 7 MSR+/MSR-   2.315797          NA           NA           NA        NA
+## 8    OVmean  35.221212          NA           NA           NA        NA
+```
+]
+.panel[.panel-name[DF ANOVA Table]
 
+```r
+#getting the ANOVA table for days to 75% flowering
+rcbd_anova$DF$anova
+```
 
+```
+##      Source         Df      Sum Sq    Mean Sq    F value        Pr(&gt;F)
+## 1       ENV   2.000000  376.141414 188.070707 744.253705 7.959563e-162
+## 2  REP(ENV)   6.000000    6.747475   1.124579   4.450306  2.041800e-04
+## 3       GEN  98.000000 3804.080808  38.817151 153.611421  0.000000e+00
+## 4   GEN:ENV 196.000000 2515.858586  12.836013  50.796057 6.659219e-278
+## 5 Residuals 588.000000  148.585859   0.252697         NA            NA
+## 6     CV(%)   1.271386          NA         NA         NA            NA
+## 7 MSR+/MSR-   2.591123          NA         NA         NA            NA
+## 8    OVmean  39.538721          NA         NA         NA            NA
+```
 ]
 ]
 
 ---
 
-## Estimating Variance Components Pt 1
+## Estimating Variance Components
 
 Variance components can be calculated using the results from the ANOVA table.  
 
@@ -541,34 +555,481 @@ print(comb.site.vc)
 
 ---
 
-## Estimating Variance Components Pt 2
+## Genotype plus genotype-by-environment (GGE) Models &amp; Biplots
 
-Divide all by VP? bc expressed as proportions to the phenotypic variances for yield across the environments
+
+The gge() function can be used to create a gge model. 
+
+First, the centering argument needs to be set to "environment" for us to get a GGE model. 
+
+Then the svp argument can be used to create three types of gge biplots. Below are the three options: 
+
+* svp = "environment"
+* svp = "genotype"
+* svp = "symmetrical"
 
 ---
 
-## GGE Biplots
+#### Let's start with svp = "environment".
+
+.panelset[
+.panel[.panel-name[Create Model]
+
+```r
+gge_model &lt;- gge(.data = bean_data,
+                 env = Site,
+                 gen = Gen_id,
+                 resp = yield,
+                 centering = "environment",
+                 svp = "environment")
+```
+]
+.panel[.panel-name[Create Plot]
+
+```r
+#creating the plot
+gge_biplot &lt;- plot(gge_model,
+                   plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
+  text_font_size = 12,
+  title_font_size = 14)) +
+  ylim(-4500,3000)
+```
+]
+.panel[.panel-name[Basic Biplot]
+
+```r
+#call the name of the plot to view it
+gge_biplot
+```
+
+![](index_files/figure-html/plot-basic-biplot-1.png)&lt;!-- --&gt;
+]
+]
+
+---
+
+#### Svp = "Environment" Pt 2
+
+.panelset[
+.panel[.panel-name[R Code]
+The discriminativeness vs. representativeness plot is created by setting the type argument to 4.
+
+```r
+dvr &lt;- plot(gge_model, type = 4,
+             plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
+  text_font_size = 12,
+  title_font_size = 14)) +
+  ylim(-4500,3000)
+```
+*Disregard the plot_theme argument for now
+]
+.panel[.panel-name[Plot]
+.pull-left[
+
+```r
+dvr
+```
+
+![](index_files/figure-html/plot-dvr-1.png)&lt;!-- --&gt;
+]
+.pull-right[
+Selian has the longest vector. We can look at yield performance at Selian and get more information about the yield of the genotypes than at SUA or Uyole.
+The longer the vector of that environment, the more information about genotype performance for the variable. 
+]
+]
+]
+
+---
+
+#### Svp = "Environment" Pt 3
+.panelset[
+.panel[.panel-name[R Code]
+
+Let's compare the environments using another biplot. Change the type to 6 to rank environments and set type to 10 to visualize a clear relationship of the environments. 
 
 
+```r
+#creating plot 1: ranking environments
+ranking_envrion &lt;- plot(gge_model, type=6, 
+                        plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
+  text_font_size = 12,
+  title_font_size = 14)) +
+  ylim(-4500,3000)
 
+#creating plot 2:relationship among environment
+relationship &lt;- plot(gge_model, type = 10, 
+                     plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
+  text_font_size = 12,
+  title_font_size = 14)) +
+  ylim(-4500,3000)
+```
+]
+.panel[.panel-name[Type = 6 Plot]
+
+
+```r
+ranking_envrion
+```
+
+![](index_files/figure-html/ranking-plot-1.png)&lt;!-- --&gt;
+]
+.panel[.panel-name[Type = 10 Plot]
+
+```r
+relationship
+```
+
+![](index_files/figure-html/comparing-env-biplots-1.png)&lt;!-- --&gt;
+]
+]
+
+
+---
+
+## Svp = "genotype" model
+
+Now, let's create an svp = "environment" model. 
+
+
+```r
+gge_model_gen &lt;- gge(.data = bean_data,
+                 env = Site,
+                 gen = Gen_id,
+                 resp = yield,
+                 centering = "environment",
+                 svp = "environment")
+```
+
+---
+
+##### Svp = "genotype" Biplots
+
+.panelset[
+.panel[.panel-name[R Code]
+explain plot types
+
+
+```r
+# 5 mean performance vs stability 
+mean_vs_stability &lt;- plot(gge_model_gen, type =2, 
+                          plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
+  text_font_size = 12,
+  title_font_size = 14)) +
+  ylim(-4500,3000)
+
+#examining the performance a particular genotype
+#genotype Selian 06
+
+genotype.87 &lt;-plot(gge_model_gen, type =7, sel_gen = "87",
+                   plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
+  text_font_size = 12,
+  title_font_size = 14)) +
+  ylim(-4500,4000)
+
+# Ranking genotype 
+rank_genotype &lt;- plot(gge_model_gen, type=8, plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
+  text_font_size = 12,
+  title_font_size = 14)) +
+  ylim(-4500,3000)
+```
+]
+.panel[.panel-name[Type = 2 Plot]
+
+
+```r
+mean_vs_stability
+```
+
+![](index_files/figure-html/mean-perf-vs-stability-plot-1.png)&lt;!-- --&gt;
+]
+.panel[.panel-name[Type = 7 Plot]
+
+```r
+genotype.87
+```
+
+![](index_files/figure-html/type-7-plot-1.png)&lt;!-- --&gt;
+]
+.panel[.panel-name[Type = 8 Plot]
+
+```r
+rank_genotype
+```
+
+![](index_files/figure-html/type-8-plot-1.png)&lt;!-- --&gt;
+]
+]
+
+---
+
+#### Svp = "symmetrical" Biplots
+
+.panelset[
+.panel[.panel-name[Create Biplot]
+
+```r
+gge_symmetrical &lt;- gge(.data = bean_data,
+                 env = Site,
+                 gen = Gen_id,
+                 resp = yield,
+                 centering = "environment",
+                 svp = "symmetrical")
+```
+
+]
+.panel[.panel-name[R Code]
+
+```r
+# which won where 
+which_won_where &lt;- plot(gge_symmetrical, type=3,
+                        plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
+  text_font_size = 12,
+  title_font_size = 14)) +
+  ylim(-60,25)
+
+#Exmaine an env
+examine_Selian &lt;- plot(gge_symmetrical, type=1, sel_env = "Selian", plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
+  text_font_size = 12,
+  title_font_size = 14)) +
+  ylim(-60,25)
+
+#Comparing 2 genotypes 
+
+compare_two_gen &lt;- plot(gge_symmetrical, type=9, sel_gen1 = "15", sel_gen2 = "69", plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
+  text_font_size = 12,
+  title_font_size = 14)) +
+  ylim(-60,25)
+```
+]
+.panel[.panel-name[Type = 3 Plot]
+
+```r
+which_won_where
+```
+
+![](index_files/figure-html/type-3-plot-1.png)&lt;!-- --&gt;
+]
+.panel[.panel-name[Type = 1 Plot]
+
+```r
+examine_Selian
+```
+
+![](index_files/figure-html/type-1-plot-1.png)&lt;!-- --&gt;
+]
+.panel[.panel-name[Type = 9 Plot]
+
+```r
+compare_two_gen
+```
+
+![](index_files/figure-html/type-9-plot-1.png)&lt;!-- --&gt;
+]
+]
 
 ---
 
 ## Stability 
 
+
+
+
+
+
+
 ---
 
-## AMMI 
+##### Creating an AMMI Model
+
+.panelset[
+.panel[.panel-name[AMMI Model]
+Use performs_ammi() to create an ammi object. From the ammi object, you can get:
+
+* ANOVA table
+* PCA 
+* AMMI model scores
+* means of genotypes in the environments
+
+```r
+ammi &lt;- performs_ammi(.data = bean_data, 
+                      env = Site, 
+                      gen = Gen_id, 
+                      rep = Rep,
+                      resp = yield)
+```
+]
+.panel[.panel-name[AMMI ANOVA]
+
+```r
+ammi$yield$ANOVA
+```
+
+```
+##      Source   Df      Sum Sq     Mean Sq    F value        Pr(&gt;F) Proportion
+## 1       ENV    2 158874976.4 79437488.20 627.232194  1.078604e-07         NA
+## 2  REP(ENV)    6    759885.9   126647.66   6.287907  2.023559e-06         NA
+## 3       GEN   98 199047400.1  2031095.92 100.841517 1.451699e-310         NA
+## 4   GEN:ENV  196 135738882.9   692545.32  34.384059 1.554893e-232         NA
+## 5       PC1   99 112959941.7  1141009.51  56.650000  0.000000e+00       83.2
+## 6       PC2   97  22778941.2   234834.45  11.660000  0.000000e+00       16.8
+## 7 Residuals  588  11843181.6    20141.47         NA            NA         NA
+## 8     Total 1086 642003209.7   591163.18         NA            NA         NA
+##   Accumulated
+## 1          NA
+## 2          NA
+## 3          NA
+## 4          NA
+## 5        83.2
+## 6       100.0
+## 7          NA
+## 8          NA
+```
+]
+.panel[.panel-name[AMMI Plot]
+
+```r
+residual_plots(ammi, nrow = 1, plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
+  text_font_size = 12,
+  title_font_size = 14))
+```
+
+![](index_files/figure-html/ammi-plot-1.png)&lt;!-- --&gt;
+]
+]
 
 ---
 
-## AMMI Biplot
+###### AMMI Biplots
+
+
+
+.panelset[
+.panel[.panel-name[Creating the plots]
+
+```r
+options(ggrepel.max.overlaps = 3) 
+
+#ab2
+plot_scores(ammi)
+```
+
+```
+## Warning: ggrepel: 79 unlabeled data points (too many overlaps). Consider
+## increasing max.overlaps
+```
+
+![](index_files/figure-html/creating-plots-1.png)&lt;!-- --&gt;
+
+```r
+#b2
+plot_scores(ammi, type=2)
+```
+
+```
+## Warning: ggrepel: 83 unlabeled data points (too many overlaps). Consider
+## increasing max.overlaps
+```
+
+![](index_files/figure-html/creating-plots-2.png)&lt;!-- --&gt;
+
+```r
+#b2 polygon
+plot_scores(ammi, type=2, polygon=T)
+```
+
+```
+## Warning: ggrepel: 83 unlabeled data points (too many overlaps). Consider
+## increasing max.overlaps
+```
+
+![](index_files/figure-html/creating-plots-3.png)&lt;!-- --&gt;
+
+```r
+#b2 other
+plot_scores(ammi,
+                  type=2,
+                  col.env = "green4",
+                  col.segm.env = "orange",
+                  highlight = c("1", "2"),
+                  col.highlight = "darkcyan",
+                  axis.expand = 1.5)
+```
+
+```
+## Warning: ggrepel: 90 unlabeled data points (too many overlaps). Consider
+## increasing max.overlaps
+```
+
+![](index_files/figure-html/creating-plots-4.png)&lt;!-- --&gt;
+
+```r
+#all plots together
+all_plots &lt;- arrange_ggplot(ab2, b2, b2_polygon, b2_other, tag_levels="a", nrow=1) 
+```
+]
+.panel[.panel-name[ab2]
+
+```r
+ab2
+```
+
+![](index_files/figure-html/ab2-1.png)&lt;!-- --&gt;
+]
+
+.panel[.panel-name[b2]
+
+```r
+b2
+```
+
+![](index_files/figure-html/b2-1.png)&lt;!-- --&gt;
+]
+
+.panel[.panel-name[b2_polygon]
+
+```r
+b2_polygon
+```
+
+![](index_files/figure-html/b2-polygon-1.png)&lt;!-- --&gt;
+]
+
+.panel[.panel-name[b2_other]
+
+```r
+b2_other
+```
+
+![](index_files/figure-html/b2-other-1.png)&lt;!-- --&gt;
+]
+.panel[.panel-name[all plots]
+
+```r
+all_plots 
+```
+
+![](index_files/figure-html/all-plots-together-1.png)&lt;!-- --&gt;
+]
+]
+
+---
+
+Genotypes on the right have higher yield Genotypes with a PCA1 value closer to 0 experienced less GXE interaction = more stable. 
+Environments closer the the PCA 1 = 0 line contributed the least to GxE interactions.
+
+---
+
+## cont ammi 
 
 ---
 
 ## Ranks: Yield Output and Stability 
 
-ASV and YSI are the metrics I use/come across most frequently. Ranking genotypes using these metrics is useful because it takes into consideration both yield output and stability. 
+Ammi Stability Value (ASV) and Yield Stability Index (YSI) are the metrics I use/come across most frequently. Ranking genotypes using these metrics is useful because it takes into consideration both yield output and stability. 
+
+ASV: genotypes with low ASV values are more stable and vice versa. 
+
+YSI takes into account both stability and yield output making it a better method to identify high yielding and stable genotypes. Lower YSI have both high mean yield and stability traits. 
 
 ---
 
@@ -579,11 +1040,11 @@ ASV and YSI are the metrics I use/come across most frequently. Ranking genotypes
 
 The link to this presentation will be emailed to you, along with a pdf copy.
 
-Check out my &lt;a href = rforplantbreeders.netlify.app&gt; blog &lt;/a&gt; for more detailed written tutorials for plant breeders who want to learn how to use R. 
+Check out my &lt;a href = "https://rforplantbreeders.netlify.app/"&gt; blog &lt;/a&gt; for more detailed written tutorials for plant breeders who want to learn how to use R. 
 
 Current Posts:
-  &lt;a href = rforplantbreeders.netlify.app&gt; Introduction to R &lt;/a&gt;
-  &lt;a href = rforplantbreeders.netlify.app&gt; Importing in R &lt;/a&gt;
+  &lt;a href = "https://rforplantbreeders.netlify.app/posts/introduction-to-r-for-plant-breeding/"&gt; Introduction to R &lt;/a&gt;
+  &lt;a href = "https://rforplantbreeders.netlify.app/posts/importing-data-into-r/"&gt; Importing in R &lt;/a&gt;
 
 ---
 
@@ -598,7 +1059,8 @@ Current Posts:
 <script>var slideshow = remark.create({
 "highlightStyle": "github",
 "highlightLines": true,
-"countIncrementalSlides": false
+"countIncrementalSlides": false,
+"ratio": "16:9"
 });
 if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
   window.dispatchEvent(new Event('resize'));

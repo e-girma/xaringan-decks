@@ -9,6 +9,7 @@ output:
       highlightStyle: github
       highlightLines: true
       countIncrementalSlides: false
+      ratio: 16:9
 ---
 
 ```{r setup, include=FALSE,fig.retina=3 }
@@ -37,12 +38,22 @@ xaringanExtra::style_share_again(
 xaringanExtra::use_panelset()
 ```
 
+```{r xaringanExtra-clipboard, echo=FALSE}
+xaringanExtra::use_clipboard(
+  button_text = "Copy to clipboard",
+  success_text = "Copied",
+  error_text = "Press Ctrl + C para to copy"
+)
+```
 
-## Intro to Presentation
+
+## Introduction to the Presentation
 
 Hello Everyone! My name is Ellena Girma and I am a data analyst intern at CIAT. 
 
-The goal of this presentation is to introduce you to R and packages in R that can help you with running GxE studies. I will take you through the GxE analysis workflow that I use. 
+The goal of this presentation is to demonstrate how R can be used to run GxE analyses.
+
+I will take you through the workflow that I use to run my GxE analysis. For each part, I will cover the main functions that I use and what outputs/results you can expect to get.
 
 ---
 
@@ -65,22 +76,25 @@ Selecting & recommending genotypes that have wider or more specific adaptation a
 
 ---
 
-## My Workflow: How I get from data to 
+## My Workflow
 
+#### In this presentation I will be sharing the process I use to get from raw data to results. I will be focusing on the response variable yield but the code I use can be altered for other response variables too. 
 
-Data Preparation 
+Workflow:
 
-Exploratory Data Analysis
+* Data Preparation 
 
-Means and High Yielding Genotypes & Locations
+* Exploratory Data Analysis
 
-Analysis of Variance (ANOVA)
+* Means and High Yielding Genotypes & Locations
 
-GGE Biplots
+* Analysis of Variance (ANOVA)
 
-Stability Analysis
+* GGE Biplots
 
-Additive Main-Effects Multiplicative Interaction (AMMI)
+* Stability Analysis
+
+* Additive Main-Effects Multiplicative Interaction (AMMI)
 
 ---
 
@@ -92,7 +106,7 @@ For this workshop, we'll be using the tidyverse and metan packages.
 
 ---
 
-## Importing Data and Loading Packages
+## Loading Packages and Importing Dat
 
 ```{r set-up-workspace-hidden, include = FALSE}
 library(xaringan)
@@ -113,18 +127,28 @@ bean_data <- read.csv("C:/Users/eruph/Documents/TB/Importing_Blog/csvfile.csv", 
 
 ```
 
+```{r creating-gen_id_codes, include=FALSE}
+# Creating new factor 
+
+bean_data$Gen_id <- as.numeric(factor(bean_data$Genotype, levels =  unique((bean_data$Genotype))))
+
+gen_id_codes <- bean_data %>%
+  distinct(Genotype, Gen_id)
+```
+
+
 ---
 
 ## Exploratory Data Analysis (EDA)
 
-Exploring and summarizing datasets using summary statistics and plots/data visualization methods.
+#### Exploring and summarizing datasets using summary statistics and plots/data visualization methods.
 
 EDA allows us to:
 
 * find outliers
 * see how our data is distributed
-* get summary statistics for each variable of interest
 * see the relationship between variables
+* get summary statistics for each variable of interest
 
 ---
 
@@ -147,7 +171,7 @@ ds_all <- desc_stat(bean_data, stats= "main")
 ```
 ]
 
-.panel[.panel-name[Summary Output]
+.panel[.panel-name[summary output]
 ```{r summary_stats-pt2}
 
 print(summary)
@@ -155,7 +179,7 @@ print(summary)
 ```
 ]
 
-.panel[.panel-name[desc_stats Output]
+.panel[.panel-name[desc_stats output]
 ```{r summary_stats-pt3}
 
 print(ds_all)
@@ -166,7 +190,7 @@ print(ds_all)
 
 ---
 
-## Checking for Outliers Pt 1: Visuals
+#### Checking for Outliers Pt 1: Visuals
 
 .panelset[
 ```{r outliers, panelset = TRUE}
@@ -180,26 +204,32 @@ find_outliers(bean_data, var = yield, plots =T)
 
 ---
 
-## Checking for Outliers Pt 2
+#### Checking for Outliers Pt 2
 
-```{r yield-outliers}
+Let's take a look at which data point are the outliers. Are they all the same location or same genotypes? 
+
+.panelset[
+```{r yield-outliers, panelset = TRUE}
 #potential outliers
 yield_outliers <- c(10, 28, 32, 35, 58, 66, 68, 69, 74 ,75, 84, 93, 109, 127, 131, 134, 157, 165, 167, 168, 173, 174, 183, 192, 208, 209, 226, 230, 233, 256, 264, 266, 267, 272, 273, 282, 291)
 
 yo <- bean_data %>%
   slice(yield_outliers) %>%
   arrange(Genotype) %>%
-  slice(1:10)
+  slice(1:15)
 
 yo
 ```
+]
 
 ---
 
-## Grand Yield Means Across Genotype
+## Grand Mean Yield Across Locations
+
+We can see the grand Mean Yield for each genotype across all three locations using the means_by() function.  
 
 .panelset[
-.panel[.panel-name[Rcode]
+.panel[.panel-name[R Code]
 ```{r grand-yield-means-p1}
 #getting means by Genotype
 mg <- means_by(bean_data, Genotype)
@@ -211,7 +241,7 @@ mg_y <- mg %>%
 ```
 ]
 
-.panel[.panel-name[Output]
+.panel[.panel-name[Table]
 ```{r grand-yield-means-p2}
 slice(mg_y, 1:10)
 ```
@@ -220,7 +250,9 @@ slice(mg_y, 1:10)
 
 ---
 
-## Yield Means Across Locations 
+## Yield Means Across Genotypes
+
+Now, let's take a look at the grand mean at each locations across all 99 genotypes using the means_by() function. 
 
 .panelset[
 .panel[.panel-name[Code]
@@ -244,50 +276,75 @@ me_y
 
 ---
 
-## Yield Ranks and Top Performers
+## Top Performers at Each Location
 
-This code shows the Top Performing Genotype at Each Location. 
+We can use the ge_winners() function to get the top performing genotype at each location Across all response variables. 
 
-.pull-left[
 ```{r top-genotype-across-loc}
 #top performing genotype in each env for yield
-win <- ge_winners(bean_data, Site, Genotype, resp = yield)
+win <- ge_winners(bean_data, Site, Genotype, resp = everything(), type = "winners")
 ```
-]
 
-.pull-right[
 ```{r print-top-genotype-across-loc}
 print(win)
 ```
-]
 
 ---
 
 ## Analysis of Variance (ANOVA): Introduction 
 
-The metan package 
+Running an ANOVA allows us to 
+
+* see if genotype main effect, environment main effect and GxE interaction effect are significant
+
+* see which effect contributes most to the variation in performance of the different traits
+
+##### The metan package provides <a href = "https://tiagoolivoto.github.io/metan/reference/index.html">many functions</a> that can be used to run ANOVA. Different functions are available based on the ANOVA type (one-way, two-way), type of model (fixed or mixed effect), etc. 
 
 ---
 
-## ANOVA for RCBD using Metan
+## ANOVA for RCBD
 
-The metan package has different functions for single site and combined site ANOVA. anova_joint() is for combined site analysis.
+anova_joint() is the function used for combined site analysis.
+
+```{r hidden-assignment, include=FALSE}
+rcbd_anova <- anova_joint(bean_data, env = "Site", gen = "Genotype", rep = "Rep", resp = everything())
+```
 
 .panelset[
-```{r rcbd-anova, panelset = c(source = "R Code" , output = "ANOVA Table")}
+.panel[.panel-name[R Code]
+```{r rcbd-anova, results='hide'}
 
-#Running joint anova for rcbd layout/plot design
-rcbd_anova <- anova_joint(bean_data, env = "Site", gen = "Genotype", rep = "Rep", resp = everything())
-
+#Running joint anova for rcbd layout/plot design for all repsonse variables
+anova_joint(bean_data, env = "Site", gen = "Genotype", rep = "Rep", resp = everything())
+```
+]
+.panel[.panel-name[Yield ANOVA Table]
+```{r Yield-ANOVA-Table}
 #getting the ANOVA table for yield 
 rcbd_anova_yield <- rcbd_anova$yield$anova
+rcbd_anova_yield
+```
+]
+.panel[.panel-name[SW ANOVA Table]
+```{r SW-ANOVA-Table}
+#getting the ANOVA table for 100g seed weight
+rcbd_anova$sw$anova
 
 ```
+]
+.panel[.panel-name[DF ANOVA Table]
+```{r DF-ANOVA-Table}
+#getting the ANOVA table for days to 75% flowering
+rcbd_anova$DF$anova
+
+```
+]
 ]
 
 ---
 
-## Estimating Variance Components Pt 1
+## Estimating Variance Components
 
 Variance components can be calculated using the results from the ANOVA table.  
 
@@ -332,34 +389,414 @@ print(comb.site.vc)
 
 ---
 
-## Estimating Variance Components Pt 2
+## Genotype plus genotype-by-environment (GGE) Models & Biplots
 
-Divide all by VP? bc expressed as proportions to the phenotypic variances for yield across the environments
+
+The gge() function can be used to create a gge model. 
+
+First, the centering argument needs to be set to "environment" for us to get a GGE model. 
+
+Then the svp argument can be used to create three types of gge biplots. Below are the three options: 
+
+* svp = "environment"
+* svp = "genotype"
+* svp = "symmetrical"
 
 ---
 
-## GGE Biplots
+#### Let's start with svp = "environment".
+
+.panelset[
+.panel[.panel-name[Create Model]
+```{r create-gge-model}
+gge_model <- gge(.data = bean_data,
+                 env = Site,
+                 gen = Gen_id,
+                 resp = yield,
+                 centering = "environment",
+                 svp = "environment")
+
+```
+]
+.panel[.panel-name[Create Plot]
+```{r basic-biplot, warning = FALSE, message=FALSE}
+#creating the plot
+gge_biplot <- plot(gge_model,
+                   plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
+  text_font_size = 12,
+  title_font_size = 14)) +
+  ylim(-4500,3000)
+
+```
+]
+.panel[.panel-name[Basic Biplot]
+```{r plot-basic-biplot, message=FALSE, warning=FALSE}
+#call the name of the plot to view it
+gge_biplot
+
+```
+]
+]
+
+---
+
+#### Svp = "Environment" Pt 2
+
+.panelset[
+.panel[.panel-name[R Code]
+The discriminativeness vs. representativeness plot is created by setting the type argument to 4.
+```{r creating-dvr, warning=FALSE, message=FALSE}
+dvr <- plot(gge_model, type = 4,
+             plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
+  text_font_size = 12,
+  title_font_size = 14)) +
+  ylim(-4500,3000)
+```
+*Disregard the plot_theme argument for now
+]
+.panel[.panel-name[Plot]
+.pull-left[
+```{r plot-dvr, message=FALSE, warning=FALSE}
+dvr
+```
+]
+.pull-right[
+Selian has the longest vector. We can look at yield performance at Selian and get more information about the yield of the genotypes than at SUA or Uyole.
+The longer the vector of that environment, the more information about genotype performance for the variable. 
+]
+]
+]
+
+---
+
+#### Svp = "Environment" Pt 3
+.panelset[
+.panel[.panel-name[R Code]
+
+Let's compare the environments using another biplot. Change the type to 6 to rank environments and set type to 10 to visualize a clear relationship of the environments. 
+
+```{r comparing-biplots, message=FALSE}
+#creating plot 1: ranking environments
+ranking_envrion <- plot(gge_model, type=6, 
+                        plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
+  text_font_size = 12,
+  title_font_size = 14)) +
+  ylim(-4500,3000)
+
+#creating plot 2:relationship among environment
+relationship <- plot(gge_model, type = 10, 
+                     plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
+  text_font_size = 12,
+  title_font_size = 14)) +
+  ylim(-4500,3000)
+
+```
+]
+.panel[.panel-name[Type = 6 Plot]
+
+```{r ranking-plot, message=FALSE, warning=FALSE}
+ranking_envrion
+```
+]
+.panel[.panel-name[Type = 10 Plot]
+```{r comparing-env-biplots, message=FALSE, warning=FALSE}
+relationship
+```
+]
+]
 
 
+---
 
+## Svp = "genotype" model
+
+Now, let's create an svp = "environment" model. 
+
+```{r create-gge-model-2}
+gge_model_gen <- gge(.data = bean_data,
+                 env = Site,
+                 gen = Gen_id,
+                 resp = yield,
+                 centering = "environment",
+                 svp = "environment")
+
+```
+
+---
+
+##### Svp = "genotype" Biplots
+
+.panelset[
+.panel[.panel-name[R Code]
+explain plot types
+
+```{r genotype-biplots-code, warning=FALSE, message=FALSE}
+
+# 5 mean performance vs stability 
+mean_vs_stability <- plot(gge_model_gen, type =2, 
+                          plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
+  text_font_size = 12,
+  title_font_size = 14)) +
+  ylim(-4500,3000)
+
+#examining the performance a particular genotype
+#genotype Selian 06
+
+genotype.87 <-plot(gge_model_gen, type =7, sel_gen = "87",
+                   plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
+  text_font_size = 12,
+  title_font_size = 14)) +
+  ylim(-4500,4000)
+
+# Ranking genotype 
+rank_genotype <- plot(gge_model_gen, type=8, plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
+  text_font_size = 12,
+  title_font_size = 14)) +
+  ylim(-4500,3000)
+
+```
+]
+.panel[.panel-name[Type = 2 Plot]
+
+```{r mean-perf-vs-stability-plot, message=FALSE, warning=FALSE}
+mean_vs_stability
+```
+]
+.panel[.panel-name[Type = 7 Plot]
+```{r type-7-plot, message=FALSE, warning=FALSE}
+genotype.87
+```
+]
+.panel[.panel-name[Type = 8 Plot]
+```{r type-8-plot, message=FALSE, warning=FALSE}
+rank_genotype
+```
+]
+]
+
+---
+
+#### Svp = "symmetrical" Biplots
+
+.panelset[
+.panel[.panel-name[Create Biplot]
+```{r svp-symmetrical}
+gge_symmetrical <- gge(.data = bean_data,
+                 env = Site,
+                 gen = Gen_id,
+                 resp = yield,
+                 centering = "environment",
+                 svp = "symmetrical")
+```
+
+]
+.panel[.panel-name[R Code]
+```{r symmetrical-biplots-code, message=FALSE}
+# which won where 
+which_won_where <- plot(gge_symmetrical, type=3,
+                        plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
+  text_font_size = 12,
+  title_font_size = 14)) +
+  ylim(-60,25)
+
+#Exmaine an env
+examine_Selian <- plot(gge_symmetrical, type=1, sel_env = "Selian", plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
+  text_font_size = 12,
+  title_font_size = 14)) +
+  ylim(-60,25)
+
+#Comparing 2 genotypes 
+
+compare_two_gen <- plot(gge_symmetrical, type=9, sel_gen1 = "15", sel_gen2 = "69", plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
+  text_font_size = 12,
+  title_font_size = 14)) +
+  ylim(-60,25)
+
+```
+]
+.panel[.panel-name[Type = 3 Plot]
+```{r type-3-plot, message=FALSE, warning=FALSE}
+which_won_where
+```
+]
+.panel[.panel-name[Type = 1 Plot]
+```{r type-1-plot, message=FALSE, warning=FALSE}
+examine_Selian
+```
+]
+.panel[.panel-name[Type = 9 Plot]
+```{r type-9-plot, message=FALSE, warning=FALSE}
+compare_two_gen
+```
+]
+]
 
 ---
 
 ## Stability 
 
+
+
+
+
+
+
 ---
 
-## AMMI 
+##### Creating an AMMI Model
+
+.panelset[
+.panel[.panel-name[AMMI Model]
+Use performs_ammi() to create an ammi object. From the ammi object, you can get:
+
+* ANOVA table
+* PCA 
+* AMMI model scores
+* means of genotypes in the environments
+```{r ammi-model, results= 'hide'}
+ammi <- performs_ammi(.data = bean_data, 
+                      env = Site, 
+                      gen = Gen_id, 
+                      rep = Rep,
+                      resp = yield)
+```
+]
+.panel[.panel-name[AMMI ANOVA]
+```{r ammi-anova}
+ammi$yield$ANOVA
+```
+]
+.panel[.panel-name[AMMI Plot]
+```{r ammi-plot}
+residual_plots(ammi, nrow = 1, plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
+  text_font_size = 12,
+  title_font_size = 14))
+```
+]
+]
 
 ---
 
-## AMMI Biplot
+###### AMMI Biplots
+
+```{r creating-plots-hidden, include=FALSE}
+options(ggrepel.max.overlaps = 3) 
+
+#
+ab2 <- plot_scores(ammi, x.lab = "Yield", axis.expand = 1, size.tex.gen = 2, size.tex.env = 2,
+                   plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
+  text_font_size = 12,
+  title_font_size = 14))
+
+#
+b2 <- plot_scores(ammi, type=2,
+                  plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
+  text_font_size = 12,
+  title_font_size = 14))
+
+#
+b2_polygon <- plot_scores(ammi, type=2, polygon=T, 
+                          plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
+  text_font_size = 12,
+  title_font_size = 14))
+
+#
+b2_other <- plot_scores(ammi,
+                  type=2,
+                  col.env = "green4",
+                  col.segm.env = "orange",
+                  highlight = c("1", "2"), #need this to only work on genotype not env as well
+                  col.highlight = "darkcyan",
+                  axis.expand = 1.5)
+
+
+#all plots together
+all_plots <- arrange_ggplot(ab2, b2, b2_polygon, b2_other, tag_levels="a", nrow=1) 
+
+```
+
+.panelset[
+.panel[.panel-name[Creating the plots]
+```{r creating-plots}
+options(ggrepel.max.overlaps = 3) 
+
+#ab2
+plot_scores(ammi)
+
+#b2
+plot_scores(ammi, type=2)
+
+#b2 polygon
+plot_scores(ammi, type=2, polygon=T)
+
+#b2 other
+plot_scores(ammi,
+                  type=2,
+                  col.env = "green4",
+                  col.segm.env = "orange",
+                  highlight = c("1", "2"),
+                  col.highlight = "darkcyan",
+                  axis.expand = 1.5)
+
+
+#all plots together
+all_plots <- arrange_ggplot(ab2, b2, b2_polygon, b2_other, tag_levels="a", nrow=1) 
+
+```
+]
+.panel[.panel-name[ab2]
+```{r ab2, warning=FALSE}
+ab2
+
+```
+]
+
+.panel[.panel-name[b2]
+```{r b2, warning=FALSE}
+b2
+
+```
+]
+
+.panel[.panel-name[b2_polygon]
+```{r b2-polygon, warning=FALSE}
+b2_polygon
+
+```
+]
+
+.panel[.panel-name[b2_other]
+```{r b2-other, warning=FALSE}
+b2_other
+
+```
+]
+.panel[.panel-name[all plots]
+```{r all-plots-together, warning=FALSE}
+all_plots 
+
+```
+]
+]
+
+---
+
+Genotypes on the right have higher yield Genotypes with a PCA1 value closer to 0 experienced less GXE interaction = more stable. 
+Environments closer the the PCA 1 = 0 line contributed the least to GxE interactions.
+
+---
+
+## cont ammi 
 
 ---
 
 ## Ranks: Yield Output and Stability 
 
-ASV and YSI are the metrics I use/come across most frequently. Ranking genotypes using these metrics is useful because it takes into consideration both yield output and stability. 
+Ammi Stability Value (ASV) and Yield Stability Index (YSI) are the metrics I use/come across most frequently. Ranking genotypes using these metrics is useful because it takes into consideration both yield output and stability. 
+
+ASV: genotypes with low ASV values are more stable and vice versa. 
+
+YSI takes into account both stability and yield output making it a better method to identify high yielding and stable genotypes. Lower YSI have both high mean yield and stability traits. 
 
 ---
 
@@ -370,11 +807,11 @@ ASV and YSI are the metrics I use/come across most frequently. Ranking genotypes
 
 The link to this presentation will be emailed to you, along with a pdf copy.
 
-Check out my <a href = rforplantbreeders.netlify.app> blog </a> for more detailed written tutorials for plant breeders who want to learn how to use R. 
+Check out my <a href = "https://rforplantbreeders.netlify.app/"> blog </a> for more detailed written tutorials for plant breeders who want to learn how to use R. 
 
 Current Posts:
-  <a href = rforplantbreeders.netlify.app> Introduction to R </a>
-  <a href = rforplantbreeders.netlify.app> Importing in R </a>
+  <a href = "https://rforplantbreeders.netlify.app/posts/introduction-to-r-for-plant-breeding/"> Introduction to R </a>
+  <a href = "https://rforplantbreeders.netlify.app/posts/importing-data-into-r/"> Importing in R </a>
 
 ---
 
