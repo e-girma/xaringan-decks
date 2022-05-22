@@ -48,12 +48,7 @@ class: middle, center
 
 
 
-
-## Introduction to the Presentation
-
---
-
-#### Hello Everyone! My name is Ellena Girma and I am a data analyst intern at CIAT. 
+### Hello Everyone! My name is Ellena Girma and I am a data analyst intern at CIAT. 
 
 --
 
@@ -68,14 +63,16 @@ class: middle, center
 ## Introduction to GxE Studies 
 
 .pull-left[
-Understanding Genotype-Environment (GxE) Interaction
+#### Understanding Genotype-Environment (GxE) Interaction
 * GXE interaction: the interaction of genotypes and environmental conditions and its joint effect on the traits being selected
 
 * Is there a pattern of phenotypic expression of the selected trait across various environmental conditions? 
 ]
 
+--
+
 .pull-right[
-Selecting &amp; recommending genotypes that have wider or more specific adaptation across various environmental conditions
+#### Selecting &amp; recommending genotypes that have wider or more specific adaptation across various environmental conditions
 
 * Stability: Does the performance of the genotype stay the same across environments?
 
@@ -86,7 +83,7 @@ Selecting &amp; recommending genotypes that have wider or more specific adaptati
 
 ## My Workflow
 
-#### In this presentation I will be sharing the process I use to get from raw data to results. I will be focusing on the response variable yield but the code I use can be altered for other response variables too. 
+#### In this presentation I will be sharing the process I use to get from raw data to results. I will be focusing on the response variable yield, but the code I use can be altered for other response variables too. 
 
 Workflow:
 
@@ -105,13 +102,13 @@ Workflow:
 * Additive Main-Effects Multiplicative Interaction (AMMI)
 
 ---
-class: middle, center, inverse
+class: middle, center
 
 ## Let's take a quick tour of R. 
 
 
 
-## For this workshop, we'll be focusing on the metan packages.
+## For this workshop, we'll be focusing on the metan package.
 
 ---
 
@@ -136,11 +133,13 @@ bean_data &lt;- read.csv("C:/Users/eruph/Documents/TB/Importing_Blog/csvfile.csv
 ```
 
 ---
-class: middle, , center
+class: middle
 
 ## Exploratory Data Analysis (EDA)
 
 ### Exploring and summarizing datasets using summary statistics and plots/data visualization methods.
+
+--
 
 EDA allows us to:
 
@@ -224,53 +223,54 @@ print(ds_all)
 
 ---
 
-#### Checking for Outliers: Visuals
+#### Checking for outliers: Plots
 
 .panelset[
 .panel[.panel-name[Code]
+This is for the variable yield. To get potential outliers for another variable, set var to var_name.
 
 ```r
 #Checking for potential outliers in yield variable
-
 find_outliers(bean_data, var = yield, plots =T)
 ```
 
-
-
+```
+## Trait: yield 
+## Number of possible outliers: 37 
+## Line(s): 10 28 32 35 58 66 68 69 74 75 84 93 109 127 131 134 157 165 167 168 173 174 183 192 208 209 226 230 233 256 264 266 267 272 273 282 291 
+## Proportion: 4.3%
+## Mean of the outliers: 4314.67 
+## Maximum of the outliers: 5152.6  | Line 208 
+## Minimum of the outliers: 3241.9  | Line 28 
+## With outliers:    mean = 1754.348 | CV = 42.991%
+## Without outliers: mean = 1643.421 | CV = 32.131%
+```
 ]
-
-.panel[.panel-name[Output]
-
-Trait: yield 
-Number of possible outliers: 37 
-Line(s): 10 28 32 35 58 66 68 69 74 75 84 93 109 127 131 134 157 165 167 168 173 174 183 192 208 209 226 230 233 256 264 266 267 272 273 282 291 
-Proportion: 4.3%
-Mean of the outliers: 4314.67 
-Maximum of the outliers: 5152.6  | Line 208 
-Minimum of the outliers: 3241.9  | Line 28 
-With outliers:    mean = 1754.348 | CV = 42.991%
-Without outliers: mean = 1643.421 | CV = 32.131%
-
-&lt;img src="index_files/figure-html/outliers2-1.png" width="504" /&gt;.panel[.panel-name[Code]
+.panel[.panel-name[Plot]
 
 ```r
-#change var = var_name to get potential outliers for another variable 
+find_outliers(bean_data, var = yield, plots =T)
 ```
 
+```
+## Trait: yield 
+## Number of possible outliers: 37 
+## Line(s): 10 28 32 35 58 66 68 69 74 75 84 93 109 127 131 134 157 165 167 168 173 174 183 192 208 209 226 230 233 256 264 266 267 272 273 282 291 
+## Proportion: 4.3%
+## Mean of the outliers: 4314.67 
+## Maximum of the outliers: 5152.6  | Line 208 
+## Minimum of the outliers: 3241.9  | Line 28 
+## With outliers:    mean = 1754.348 | CV = 42.991%
+## Without outliers: mean = 1643.421 | CV = 32.131%
+```
 
-
-]
-
-.panel[.panel-name[Output]
-
-
-
+&lt;img src="index_files/figure-html/yield-outliers-plots-1.png" width="504" /&gt;
 ]
 ]
 
 ---
 
-#### Checking for Outliers: Looking at Data Points
+### Checking for Outliers: Looking at Data Points
 
 Let's take a look at which data point are the outliers. Are they all the same location or same genotypes? 
 
@@ -367,7 +367,7 @@ slice(mg_y, 1:10)
 
 ## Yield Means Across Genotypes at Each Location
 
-Now, let's take a look at the grand mean at each locations across all 99 genotypes using the means_by() function. 
+Now, let's take a look at the grand mean at each location using the means_by() function. 
 
 .panelset[
 .panel[.panel-name[Code]
@@ -430,11 +430,11 @@ print(win)
 ```
 
 ---
-class: middle, , center
+class: middle
 
 ## Analysis of Variance (ANOVA): Introduction 
 
-Running an ANOVA allows us to 
+#### Running an ANOVA allows us to 
 
 * see if genotype main effect, environment main effect and GxE interaction effect are significant
 
@@ -446,7 +446,7 @@ Running an ANOVA allows us to
 
 ## ANOVA for RCBD
 
-anova_joint() is the function used for combined site analysis.
+#### anova_joint() is the function used for combined site analysis.
 
 #### get the anova table for the respinse variable you want through anova_object_name$var_name$anova to 
 
@@ -578,23 +578,26 @@ print(comb.site.vc)
 ]
 
 ---
-class: middle, center
+class: middle
 
 ## Genotype plus genotype-by-environment (GGE) Models &amp; Biplots
 
+--
 
 #### The gge() function can be used to create a gge model. 
 
 --
 
-First, the centering argument needs to be set to "environment" for us to get a GGE model. 
+#### First, the centering argument needs to be set to "environment" for us to get a GGE model. 
 
 --
 
-Then the svp argument can be used to create three types of gge biplots. Below are the three options: 
+#### Then the svp argument can be used to create three types of gge biplots. Below are the three options: 
 
 * svp = "environment"
+
 * svp = "genotype"
+
 * svp = "symmetrical"
 
 ---
@@ -655,21 +658,18 @@ The discriminativeness vs. representativeness plot is created by setting the typ
   title_font_size = 14)) +
   ylim(-4500,3000)
 ```
-*Disregard the plot_theme argument for now
 ]
 .panel[.panel-name[Plot]
-.pull-left[
+
+Selian has the longest vector. We can look at yield performance at Selian and get more information about the yield of the genotypes than at SUA or Uyole.
+The longer the vector of that environment, the more information about genotype performance for the variable. 
+
 
 ```r
 dvr
 ```
 
 &lt;img src="index_files/figure-html/plot-dvr-1.png" width="504" /&gt;
-]
-.pull-right[
-Selian has the longest vector. We can look at yield performance at Selian and get more information about the yield of the genotypes than at SUA or Uyole.
-The longer the vector of that environment, the more information about genotype performance for the variable. 
-]
 ]
 ]
 
@@ -683,7 +683,7 @@ Let's compare the environments using another biplot. Change the type to 6 to ran
 
 ```r
 #creating plot 1: ranking environments
-*ranking_envrion &lt;- plot(gge_model, type=6,
+*ranking_envrionment &lt;- plot(gge_model, type=6,
                         plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
   text_font_size = 12,
   title_font_size = 14)) +
@@ -702,7 +702,7 @@ Let's compare the environments using another biplot. Change the type to 6 to ran
 
 
 ```r
-ranking_envrion
+ranking_envrionment
 ```
 
 &lt;img src="index_files/figure-html/ranking-plot-1.png" width="504" /&gt;
@@ -720,11 +720,9 @@ relationship
 ---
 class: middle, center
 
-### Now let's try svp = "genotype"
+# Now, let's try svp = "genotype"
 
 ---
-
-Now, let's create an svp = "environment" model. 
 
 
 ```r
@@ -804,7 +802,7 @@ rank_genotype
 ---
 class: middle, center
 
-### Finally let's look at svp = "symmetrical". 
+# Finally, let's look at svp = "symmetrical". 
 
 
 ---
@@ -879,7 +877,7 @@ compare_two_gen
 ]
 
 ---
-class: middle, center
+class: middle
 
 ## Additive Main-Effects Multiplicative Interaction (AMMI)
 
@@ -941,14 +939,11 @@ ammi$yield$ANOVA
 ```
 ]
 .panel[.panel-name[AMMI Plot]
+&lt;img src="index_files/figure-html/ammi-plot-for-output-1.png" width="504" /&gt;
+
 
 ```r
-*residual_plots(ammi
-               
-               , nrow = 2, 
-               plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
-  text_font_size = 12,
-  title_font_size = 14))
+residual_plots(ammi)
 ```
 
 &lt;img src="index_files/figure-html/ammi-plot-1.png" width="504" /&gt;
@@ -967,25 +962,13 @@ ammi$yield$ANOVA
 ```r
 #ab2
 plot_scores(ammi)
-```
 
-&lt;img src="index_files/figure-html/creating-plots-1.png" width="504" /&gt;
-
-```r
 #b2
 plot_scores(ammi, type=2)
-```
 
-&lt;img src="index_files/figure-html/creating-plots-2.png" width="504" /&gt;
-
-```r
 #b2 polygon
 plot_scores(ammi, type=2, polygon=T)
-```
 
-&lt;img src="index_files/figure-html/creating-plots-3.png" width="504" /&gt;
-
-```r
 #b2 other
 plot_scores(ammi,
                   type=2,
@@ -994,11 +977,8 @@ plot_scores(ammi,
                   highlight = c("1", "2"),
                   col.highlight = "darkcyan",
                   axis.expand = 1.5)
-```
 
-&lt;img src="index_files/figure-html/creating-plots-4.png" width="504" /&gt;
 
-```r
 #all plots together
 all_plots &lt;- arrange_ggplot(ab2, b2, b2_polygon, b2_other, tag_levels="a", nrow=2) 
 ```
@@ -1057,28 +1037,32 @@ Environments closer the the PCA 1 = 0 line contributed the least to GxE interact
 ---
 class: middle, center
 
-## Ranks: Yield Output and Stability 
+# Ranks: Yield Output and Stability 
 
 #### Ammi Stability Value (ASV) and Yield Stability Index (YSI) are the metrics I use/come across most frequently. Ranking genotypes using these metrics is useful because it takes into consideration both yield output and stability. 
 
 --
 
+.pull-left[
 #### ASV: genotypes with low ASV values are more stable and vice versa. 
+]
 
 --
 
+.pull-right[
 #### YSI takes into account both stability and yield output making it a better method to identify high yielding and stable genotypes. Lower YSI have both high mean yield and stability traits. 
+]
 
 ---
-class: middle, center
+class: middle
 
-## Follow Up Resources 
+# Follow Up Resources 
 
-The link to this presentation will be emailed to you, along with a pdf copy.
+#### The link to this presentation will be emailed to you, along with a pdf copy.
 
-Check out my &lt;a href = "https://rforplantbreeders.netlify.app/"&gt; blog &lt;/a&gt; for more detailed written tutorials for plant breeders who want to learn how to use R. 
+#### Check out my &lt;a href = "https://rforplantbreeders.netlify.app/"&gt; blog &lt;/a&gt; for more detailed written tutorials for plant breeders who want to learn how to use R. 
 
-Current Posts:
+#### Current Posts:
 
 *  &lt;a href = "https://rforplantbreeders.netlify.app/posts/introduction-to-r-for-plant-breeding/"&gt; Introduction to R &lt;/a&gt;
 *  &lt;a href = "https://rforplantbreeders.netlify.app/posts/importing-data-into-r/"&gt; Importing in R &lt;/a&gt;
@@ -1086,7 +1070,8 @@ Current Posts:
 ---
 class: middle, center
 
-# Any Questions? 
+# Any Questions?
+#### Please feel free to ask now. 
 
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
