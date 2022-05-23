@@ -8,13 +8,14 @@ output:
     nature:
       highlightStyle: github
       highlightLines: true
-      countIncrementalSlides: false
+      countIncrementalSlides: true
+      slideNumberFormat: "%current%"
       ratio: 16:9
 ---
 class: middle, center
 
 ```{r setup, include=FALSE }
-knitr::opts_chunk$set(echo = TRUE, fig.retina=3)
+knitr::opts_chunk$set(echo = TRUE, fig.retina=3, fig.height = 7)
 
 ```
 
@@ -30,9 +31,7 @@ style_mono_accent(
 
 ```{r style-share-again, echo=FALSE}
 xaringanExtra::use_share_again()
-xaringanExtra::style_share_again(
-  share_buttons = c("twitter", "linkedin")
-)
+
 ```
 
 
