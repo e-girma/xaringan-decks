@@ -410,11 +410,11 @@ print(comb.site.vc)
 ---
 class: middle
 
-## Genotype plus genotype-by-environment (GGE) Models & Biplots
+## Genotype plus genotype-by-environment (GGE) Models
 
 --
 
-#### The gge() function can be used to create a gge model. 
+#### Use the gge() function to create a gge model. 
 
 --
 
@@ -430,10 +430,56 @@ class: middle
 
 * svp = "symmetrical"
 
+
 ---
 class: middle, center
 
-# Let's start with svp = "environment"
+## Genotype plus genotype-by-environment (GGE) Biplots
+
+--
+
+#### Use the plot() function to create plots from your gge models. 
+
+
+#### Use the type argument to choose the kind of plot you want. There are 10 types to choose from. 
+
+
+
+---
+
+## Type argument in plot
+
+.pull-left[
+
+1 = Basic biplot.
+
+2 =  Mean performance vs. stability (gge biplots) or the The Average Tester Coordination view for genotype-trait and genotype-yield*trait biplots.
+
+3 = Which-won-where.
+
+4 = Discriminativeness vs. representativeness.
+
+5 = Examine an environment (or trait/yield*trait combination).
+]
+.pull-right[
+6 = Ranking environments (or trait/yield*trait combination).
+
+7 = Examine a genotype.
+
+8 = Ranking genotypes.
+
+9 = Compare two genotypes.
+
+10 = Relationship among environments (or trait/yield*trait combination).
+]
+
+#### Take a look at the <a href = "https://tiagoolivoto.github.io/metan/reference/plot.gge.html">plot documentation</a> page for more information. 
+
+---
+class: middle, center
+
+# GGE Model 1
+#Let's start with svp = "environment"
 
 ---
 
@@ -459,7 +505,7 @@ gge_model <- gge(.data = bean_data,
 ```
 ]
 .panel[.panel-name[Create Plot]
-```{r basic-biplot, warning = FALSE, message=FALSE, fig.height = 15}
+```{r basic-biplot-hidden, warning = FALSE, message=FALSE, fig.height = 15, include=FALSE}
 #creating the plot
 gge_biplot <- plot(gge_model, #<<
                    
@@ -468,6 +514,13 @@ gge_biplot <- plot(gge_model, #<<
   title_font_size = 14)) +
   ylim(-4500,3000)
 
+```
+
+Basic Biplot is a PC2 vs PC1 plot. Each environment will have a vector connected to the origin. The angle between environments gives you information about the correlation between the environments. 
+
+```{r basic-biplot, results='hide', warning=FALSE, eval=FALSE}
+#creating the basic biplot
+plot(gge_model, type = 1)
 ```
 ]
 .panel[.panel-name[Basic Biplot]
@@ -484,13 +537,18 @@ gge_biplot
 .panelset[
 .panel[.panel-name[R Code]
 The discriminativeness vs. representativeness plot is created by setting the type argument to 4.
-```{r creating-dvr, warning=FALSE, message=FALSE}
+
+
+```{r creating-dvr-hiden, warning=FALSE, message=FALSE, include=FALSE}
 dvr <- plot(gge_model, type = 4, #<<
             
              plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
   text_font_size = 12,
   title_font_size = 14)) +
   ylim(-4500,3000)
+```
+```{r creating-dvr, results='hide', eval=FALSE}
+plot(gge_model, type = 4)
 ```
 ]
 .panel[.panel-name[Plot]
@@ -509,12 +567,22 @@ dvr
 .panelset[
 .panel[.panel-name[R Code]
 
-Let's compare the environments using another biplot. Change the type to 6 to rank environments and set type to 10 to visualize a clear relationship of the environments. 
+Let's compare the environments using another biplot. 
+Set the type to 6 to rank environments and set type to 10 to visualize a clear relationship of the environments. 
 
-```{r comparing-biplots, message=FALSE}
+```{r comparing-biplots, message=FALSE, results='hide', eval=FALSE}
 #creating plot 1: ranking environments
-ranking_envrionment <- plot(gge_model, type=6, #<<  
-                        plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
+plot(gge_model, type=6)
+
+#creating plot 2:relationship among environment
+plot(gge_model, type = 10)
+
+```
+
+```{r comparing-biplots-hidden, message=FALSE, include=FALSE}
+#creating plot 1: ranking environments
+ranking_envrionment <- plot(gge_model, type=6, 
+                            plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
   text_font_size = 12,
   title_font_size = 14)) +
   ylim(-4500,3000)
@@ -545,7 +613,7 @@ relationship
 ---
 class: middle, center
 
-# Now, let's try svp = "genotype"
+# Now, for the second model, let's try svp = "genotype"
 
 ---
 
@@ -567,9 +635,22 @@ gge_model_gen <- gge(.data = bean_data,
 .panel[.panel-name[R Code]
 explain plot types
 
-```{r genotype-biplots-code, warning=FALSE, message=FALSE}
+```{r genotype-biplots-code, warning=FALSE, message=FALSE, eval=FALSE}
 
-# 5 mean performance vs stability 
+# mean performance vs stability 
+plot(gge_model_gen, type =2)
+
+#examining the performance a particular genotype
+
+plot(gge_model_gen, type =7, sel_gen = "87")
+
+# Ranking genotype 
+plot(gge_model_gen, type=8)
+
+```
+```{r genotype-biplots-code-hidden, warning=FALSE, message=FALSE, include=FALSE}
+
+#mean performance vs stability 
 mean_vs_stability <- plot(gge_model_gen, type =2, #<<
                           
                           plot_theme = theme_xaringan(css_file =  "C:/Users/eruph/Documents/git repos for r/xaringan-decks/GxE-June2022/xaringan-themer.css",
@@ -619,7 +700,7 @@ rank_genotype
 ---
 class: middle, center
 
-# Finally, let's look at svp = "symmetrical". 
+# Finally, for the third model, let's look at svp = "symmetrical". 
 
 
 ---
@@ -637,7 +718,7 @@ gge_symmetrical <- gge(.data = bean_data,
 
 ]
 .panel[.panel-name[R Code]
-```{r symmetrical-biplots-code, message=FALSE}
+```{r symmetrical-biplots-code-hidden, message=FALSE, include=FALSE}
 # which won where 
 which_won_where <- plot(gge_symmetrical, type=3, #<<
                         
@@ -663,6 +744,18 @@ compare_two_gen <- plot(gge_symmetrical, type=9, sel_gen1 = "15", sel_gen2 = "69
   text_font_size = 12,
   title_font_size = 14)) +
   ylim(-60,25)
+
+```
+```{r symmetrical-biplots-code, message=FALSE, results='hide', eval=FALSE}
+# which won where 
+plot(gge_symmetrical, type=3)
+
+#Exmaine an env
+examine_Selian <- plot(gge_symmetrical, type=1, sel_env = "Selian")
+
+#Comparing 2 genotypes 
+
+compare_two_gen <- plot(gge_symmetrical, type=9, sel_gen1 = "15", sel_gen2 = "69")
 
 ```
 ]
