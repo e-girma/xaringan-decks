@@ -28,7 +28,7 @@ class: center, middle, inverse, title-slide
 ### Ellena Girma
 ]
 .date[
-### 2022/05/27 (updated: 2022-05-23)
+### 2022/05/27 (updated: 2022-05-30)
 ]
 
 ---
@@ -929,8 +929,8 @@ ammi$yield$ANOVA
 *## 3       GEN   98 199047400.1  2031095.92 100.841517 1.451699e-310         NA
 *## 4   GEN:ENV  196 135738882.9   692545.32  34.384059 1.554893e-232         NA
 *## 5       PC1   99 112959941.7  1141009.51  56.650000  0.000000e+00       83.2
-## 6       PC2   97  22778941.2   234834.45  11.660000  0.000000e+00       16.8
-## 7 Residuals  588  11843181.6    20141.47         NA            NA         NA
+*## 6       PC2   97  22778941.2   234834.45  11.660000  0.000000e+00       16.8
+*## 7 Residuals  588  11843181.6    20141.47         NA            NA         NA
 ## 8     Total 1086 642003209.7   591163.18         NA            NA         NA
 ##   Accumulated
 ## 1          NA
@@ -965,27 +965,14 @@ residual_plots(ammi)
 .panel[.panel-name[Creating the plots]
 
 ```r
-#ab2
+#ab2, basic ammi biplot
 plot_scores(ammi)
 
-#b2
+#b2, Produces an AMMI2 biplot (PC1 x PC2) to make inferences related to the interaction effects.
 plot_scores(ammi, type=2)
 
 #b2 polygon
 plot_scores(ammi, type=2, polygon=T)
-
-#b2 other
-plot_scores(ammi,
-                  type=2,
-                  col.env = "green4",
-                  col.segm.env = "orange",
-                  highlight = c("1", "2"),
-                  col.highlight = "darkcyan",
-                  axis.expand = 1.5)
-
-
-#all plots together
-all_plots &lt;- arrange_ggplot(ab2, b2, b2_polygon, b2_other, tag_levels="a", nrow=2) 
 ```
 ]
 .panel[.panel-name[ab2]
@@ -1014,30 +1001,7 @@ b2_polygon
 
 &lt;img src="index_files/figure-html/b2-polygon-1.png" width="504" /&gt;
 ]
-
-.panel[.panel-name[b2_other]
-
-```r
-b2_other
-```
-
-&lt;img src="index_files/figure-html/b2-other-1.png" width="504" /&gt;
 ]
-.panel[.panel-name[all plots]
-
-```r
-all_plots 
-```
-
-&lt;img src="index_files/figure-html/all-plots-together-1.png" width="504" /&gt;
-]
-]
-
----
-
-Genotypes on the right have higher yield 
-Genotypes with a PCA1 value closer to 0 experienced less GXE interaction = more stable. 
-Environments closer the the PCA 1 = 0 line contributed the least to GxE interactions.
 
 ---
 class: middle, center

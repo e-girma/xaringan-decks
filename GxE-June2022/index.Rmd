@@ -811,7 +811,7 @@ ammi <- performs_ammi(.data = bean_data,
 ```
 ]
 .panel[.panel-name[AMMI ANOVA]
-```{r ammi-anova, highlight.output = 1:6}
+```{r ammi-anova, highlight.output = 1:8}
 ammi$yield$ANOVA
 ```
 ]
@@ -877,27 +877,15 @@ all_plots <- arrange_ggplot(ab2, b2, b2_polygon, b2_other, tag_levels="a", nrow=
 .panelset[
 .panel[.panel-name[Creating the plots]
 ```{r creating-plots, results='hide', warning=FALSE, eval=FALSE}
-#ab2
+#ab2, basic ammi biplot
 plot_scores(ammi)
 
-#b2
+#b2, Produces an AMMI2 biplot (PC1 x PC2) to make inferences related to the interaction effects.
 plot_scores(ammi, type=2)
 
 #b2 polygon
 plot_scores(ammi, type=2, polygon=T)
 
-#b2 other
-plot_scores(ammi,
-                  type=2,
-                  col.env = "green4",
-                  col.segm.env = "orange",
-                  highlight = c("1", "2"),
-                  col.highlight = "darkcyan",
-                  axis.expand = 1.5)
-
-
-#all plots together
-all_plots <- arrange_ggplot(ab2, b2, b2_polygon, b2_other, tag_levels="a", nrow=2) 
 
 ```
 ]
@@ -921,25 +909,7 @@ b2_polygon
 
 ```
 ]
-
-.panel[.panel-name[b2_other]
-```{r b2-other, warning=FALSE}
-b2_other
-
-```
 ]
-.panel[.panel-name[all plots]
-```{r all-plots-together, warning=FALSE}
-all_plots 
-```
-]
-]
-
----
-
-Genotypes on the right have higher yield 
-Genotypes with a PCA1 value closer to 0 experienced less GXE interaction = more stable. 
-Environments closer the the PCA 1 = 0 line contributed the least to GxE interactions.
 
 ---
 class: middle, center
