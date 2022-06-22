@@ -322,7 +322,7 @@ class: middle
 
 #### anova_joint() is the function used for combined site analysis.
 
-#### get the anova table for the respinse variable you want through anova_object_name$var_name$anova to 
+#### get the anova table for the response variable you want through anova_object_name$var_name$anova to 
 
 ```{r hidden-assignment, include=FALSE}
 rcbd_anova <- anova_joint(bean_data, env = "Site", gen = "Genotype", rep = "Rep", resp = everything())
@@ -553,8 +553,7 @@ plot(gge_model, type = 4)
 ]
 .panel[.panel-name[Plot]
 
-Selian has the longest vector. We can look at yield performance at Selian and get more information about the yield of the genotypes than at SUA or Uyole.
-The longer the vector of that environment, the more information about genotype performance for the variable. 
+Selian has the longest vector. We can look at yield performance at Selian and get more information about the yield of the genotypes than at SUA or Uyole. Uyole has the smaller angle to the Average Environment Axis (AEA). This makes it the most representative environment. 
 
 ```{r plot-dvr, message=FALSE, warning=FALSE}
 dvr
@@ -597,13 +596,13 @@ relationship <- plot(gge_model, type = 10, #<<
 
 ```
 ]
-.panel[.panel-name[Type = 6 Plot]
+.panel[.panel-name[Ranking Environment]
 
 ```{r ranking-plot, message=FALSE, warning=FALSE}
 ranking_envrionment
 ```
 ]
-.panel[.panel-name[Type = 10 Plot]
+.panel[.panel-name[Relationship Between Environments]
 ```{r comparing-env-biplots, message=FALSE, warning=FALSE}
 relationship
 ```
@@ -623,7 +622,7 @@ gge_model_gen <- gge(.data = bean_data,
                  gen = Gen_id,
                  resp = yield,
                  centering = "environment",
-                 svp = "environment")
+                 svp = "genotype")
 
 ```
 
