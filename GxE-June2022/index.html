@@ -4,7 +4,7 @@
     <title>GxE Analysis Workshop</title>
     <meta charset="utf-8" />
     <meta name="author" content="Ellena Girma" />
-    <script src="index_files/header-attrs-2.13/header-attrs.js"></script>
+    <script src="index_files/header-attrs-2.14/header-attrs.js"></script>
     <script src="index_files/clipboard-2.0.6/clipboard.min.js"></script>
     <link href="index_files/shareon-1.4.1/shareon.min.css" rel="stylesheet" />
     <script src="index_files/shareon-1.4.1/shareon.min.js"></script>
@@ -28,7 +28,7 @@ class: center, middle, inverse, title-slide
 ### Ellena Girma
 ]
 .date[
-### 2022/05/27 (updated: 2022-05-30)
+### 2022/05/27 (updated: 2022-06-23)
 ]
 
 ---
@@ -207,14 +207,14 @@ print(ds_all)
 ```
 
 ```
-## # A tibble: 5 x 9
-##   variable      cv    max    mean median   min sd.amo      se      ci
-##   &lt;chr&gt;      &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
-## 1 DF          7.02   48     39.5    39    33     2.77  0.093   0.182 
-## 2 pods.plant 48.1    46.6   14.8    13.4   2.6   7.11  0.238   0.467 
-## 3 seeds.pod  21.3     7.6    4.82    4.8   2.6   1.02  0.0343  0.0673
-## 4 sw         32.9    67     35.2    35    15.3  11.6   0.389   0.763 
-## 5 yield      43.0  5153.  1754.   1602.  498.  754.   25.3    49.6
+## # A tibble: 5 × 10
+##   variable      cv    max    mean median   min sd.amo      se    ci.t n.valid
+##   &lt;chr&gt;      &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+## 1 DF          7.02   48     39.5    39    33     2.77  0.093   0.182      891
+## 2 pods.plant 48.1    46.6   14.8    13.4   2.6   7.11  0.238   0.467      891
+## 3 seeds.pod  21.3     7.6    4.82    4.8   2.6   1.02  0.0343  0.0673     891
+## 4 sw         32.9    67     35.2    35    15.3  11.6   0.389   0.763      891
+## 5 yield      43.0  5153.  1754.   1602.  498.  754.   25.3    49.6        891
 ```
 ]
 ]
@@ -344,7 +344,7 @@ slice(mg_y, 1:10)
 ```
 
 ```
-## # A tibble: 10 x 2
+## # A tibble: 10 × 2
 ##    Genotype     yield
 ##    &lt;fct&gt;        &lt;dbl&gt;
 ##  1 Cheupe       3144.
@@ -388,7 +388,7 @@ me_y
 ```
 
 ```
-## # A tibble: 3 x 2
+## # A tibble: 3 × 2
 ##   Site   yield
 ##   &lt;fct&gt;  &lt;dbl&gt;
 ## 1 Selian 2336.
@@ -419,7 +419,7 @@ print(win)
 ```
 
 ```
-## # A tibble: 3 x 6
+## # A tibble: 3 × 6
 ##   ENV    DF              pods.plant   seeds.pod sw          yield    
 ##   &lt;fct&gt;  &lt;chr&gt;           &lt;chr&gt;        &lt;chr&gt;     &lt;chr&gt;       &lt;chr&gt;    
 ## 1 Selian Kamosi          Cheupe       Cheupe    Lyamungo 90 Cheupe   
@@ -446,7 +446,7 @@ class: middle
 
 #### anova_joint() is the function used for combined site analysis.
 
-#### get the anova table for the respinse variable you want through anova_object_name$var_name$anova to 
+#### get the anova table for the response variable you want through anova_object_name$var_name$anova to 
 
 
 
@@ -668,7 +668,7 @@ gge_model &lt;- gge(.data = bean_data,
 .panel[.panel-name[Create Plot]
 
 
-Basic Biplot is a PC2 vs PC1 plot. Each environment will have a vector connected to the origin. The angle between environments gives you information about the correlation between the environments. 
+Basic Biplot is a PC2 vs PC1 plot. Each environment will have a vector starting from the origin. The angle between environments gives you information about the correlation between the environments. 
 
 
 ```r
@@ -702,8 +702,7 @@ plot(gge_model, type = 4)
 ]
 .panel[.panel-name[Plot]
 
-Selian has the longest vector. We can look at yield performance at Selian and get more information about the yield of the genotypes than at SUA or Uyole.
-The longer the vector of that environment, the more information about genotype performance for the variable. 
+Selian has the longest vector. We can look at yield performance at Selian and get more information about the yield of the genotypes than at SUA or Uyole. Uyole has the smaller angle to the Average Environment Axis (AEA). This makes it the most representative environment. 
 
 
 ```r
@@ -733,7 +732,7 @@ plot(gge_model, type = 10)
 
 
 ]
-.panel[.panel-name[Type = 6 Plot]
+.panel[.panel-name[Ranking Environment]
 
 
 ```r
@@ -742,7 +741,7 @@ ranking_envrionment
 
 &lt;img src="index_files/figure-html/ranking-plot-1.png" width="504" /&gt;
 ]
-.panel[.panel-name[Type = 10 Plot]
+.panel[.panel-name[Relationship Between Environments]
 
 ```r
 relationship
@@ -766,7 +765,7 @@ gge_model_gen &lt;- gge(.data = bean_data,
                  gen = Gen_id,
                  resp = yield,
                  centering = "environment",
-                 svp = "environment")
+                 svp = "genotype")
 ```
 
 ---
@@ -782,16 +781,13 @@ explain plot types
 # mean performance vs stability 
 plot(gge_model_gen, type =2)
 
-#examining the performance a particular genotype
-
-plot(gge_model_gen, type =7, sel_gen = "87")
-
 # Ranking genotype 
 plot(gge_model_gen, type=8)
 ```
 
+
 ]
-.panel[.panel-name[Type = 2 Plot]
+.panel[.panel-name[Mean vs Stability]
 
 
 ```r
@@ -800,15 +796,7 @@ mean_vs_stability
 
 &lt;img src="index_files/figure-html/mean-perf-vs-stability-plot-1.png" width="504" /&gt;
 ]
-.panel[.panel-name[Type = 7 Plot]
-
-```r
-genotype.87
-```
-
-&lt;img src="index_files/figure-html/type-7-plot-1.png" width="504" /&gt;
-]
-.panel[.panel-name[Type = 8 Plot]
+.panel[.panel-name[Ranking Genotypes]
 
 ```r
 rank_genotype
@@ -847,15 +835,12 @@ gge_symmetrical &lt;- gge(.data = bean_data,
 # which won where 
 plot(gge_symmetrical, type=3)
 
-#Exmaine an env
-examine_Selian &lt;- plot(gge_symmetrical, type=1, sel_env = "Selian")
-
 #Comparing 2 genotypes 
 
 compare_two_gen &lt;- plot(gge_symmetrical, type=9, sel_gen1 = "15", sel_gen2 = "69")
 ```
 ]
-.panel[.panel-name[Type = 3 Plot]
+.panel[.panel-name[Which Won Where]
 
 ```r
 which_won_where
@@ -863,15 +848,7 @@ which_won_where
 
 &lt;img src="index_files/figure-html/type-3-plot-1.png" width="504" /&gt;
 ]
-.panel[.panel-name[Type = 1 Plot]
-
-```r
-examine_Selian
-```
-
-&lt;img src="index_files/figure-html/type-1-plot-1.png" width="504" /&gt;
-]
-.panel[.panel-name[Type = 9 Plot]
+.panel[.panel-name[Compare Genotypes]
 
 ```r
 compare_two_gen
@@ -931,7 +908,7 @@ ammi$yield$ANOVA
 *## 5       PC1   99 112959941.7  1141009.51  56.650000  0.000000e+00       83.2
 *## 6       PC2   97  22778941.2   234834.45  11.660000  0.000000e+00       16.8
 *## 7 Residuals  588  11843181.6    20141.47         NA            NA         NA
-## 8     Total 1086 642003209.7   591163.18         NA            NA         NA
+*## 8     Total 1086 642003209.7   591163.18         NA            NA         NA
 ##   Accumulated
 ## 1          NA
 ## 2          NA
@@ -944,7 +921,6 @@ ammi$yield$ANOVA
 ```
 ]
 .panel[.panel-name[AMMI Plot]
-&lt;img src="index_files/figure-html/ammi-plot-for-output-1.png" width="504" /&gt;
 
 
 ```r
@@ -975,10 +951,10 @@ plot_scores(ammi, type=2)
 plot_scores(ammi, type=2, polygon=T)
 ```
 ]
-.panel[.panel-name[ab2]
+.panel[.panel-name[ammi_biplot1]
 
 ```r
-ab2
+ammi_biplot1
 ```
 
 &lt;img src="index_files/figure-html/ab2-1.png" width="504" /&gt;
@@ -1023,11 +999,71 @@ class: middle, center
 ]
 
 ---
+
+#### Use the &lt;a href= "https://tiagoolivoto.github.io/metan/reference/ammi_indexes.html"&gt;ammi_indexes()&lt;/a&gt; function to calculate many AMMI-based statistics.
+.panelset[
+.panel[.panel-name[ASV]
+
+```r
+ammi_index &lt;- ammi_indexes(ammi, level = 0.95)
+```
+]
+.panel[.panel-name[ASV Results]
+
+
+```r
+ammi_index$yield$ASV
+```
+
+```
+##  [1]   0.3743284 105.7142141  45.3017281   5.5209325  24.1452122   8.3997479
+##  [7]  41.8516322  36.1954736  13.1441321   9.6855204  10.0884941  15.5603091
+## [13]  21.9185126  11.5032871   2.6378536  24.4509217  39.6016949  18.0710260
+## [19]   3.2796301  13.9254193  22.7739710  14.3698118   1.7219150   6.1451389
+## [25]   7.1595452 105.4762409  17.5841386  33.7633071  14.7950173  24.0321075
+## [31]  22.0682420  31.6411401  12.4973625  16.1684393   7.8463305  45.7226331
+## [37]  23.1230903  18.4354299  40.2764680  30.1568250  21.7140351  29.5019066
+## [43]   8.2826783  15.2563748  21.2334733  25.5156696  37.4984548   8.6861028
+## [49]  43.0402788   7.0901911  13.8969691   6.8373741  35.8930326  69.3553828
+## [55]   2.9744217  29.8567655   2.9008277  32.5698178   8.8062425  52.7442305
+## [61]   8.5565234  18.1772123  82.1457799  15.3907617 115.9391135 141.8757472
+## [67]  22.2635780  23.0671911  11.6343117  33.3673054  15.0946263   8.8537557
+## [73]  79.4979963   5.2581231  37.8284771  12.3913684  28.5883873  15.7815954
+## [79]  28.5323632  32.5604059   2.9355086   6.7212823  84.5058132  37.2137729
+## [85]  14.4411885  20.4230591  24.3445197  11.7288386  35.5159709   6.6535237
+## [91]  15.2624635  55.0649012 140.7028315  13.8009329   8.8636252   7.4107872
+## [97]  24.8599914  26.9057554  58.4753660
+```
+]
+.panel[.panel-name[ASVR Results]
+
+
+```r
+ammi_index$yield$ASV_R
+```
+
+```
+##  [1]  1 96 86  9 60 19 84 78 32 25 26 43 53 27  3 62 82 47  7 35 56 36  2 10 15
+## [26] 95 46 75 38 59 54 71 31 45 17 87 58 49 83 70 52 68 18 40 51 64 80 21 85 14
+## [51] 34 13 77 91  6 69  4 73 22 88 20 48 93 42 97 99 55 57 28 74 39 23 92  8 81
+## [76] 30 67 44 66 72  5 12 94 79 37 50 61 29 76 11 41 89 98 33 24 16 63 65 90
+```
+]
+
+.panel[.panel-name[YSI]
+
+### YSI = RASV + RY
+
+]
+]
+
+
+---
 class: middle
 
 # Follow Up Resources 
 
-#### The link to this presentation will be emailed to you, along with a pdf copy.
+#### The link to this presentation will be emailed to you.
 
 #### Check out my &lt;a href = "https://rforplantbreeders.netlify.app/"&gt; blog &lt;/a&gt; for more detailed written tutorials for plant breeders who want to learn how to use R. 
 
@@ -1040,7 +1076,7 @@ class: middle
 class: middle, center
 
 # Any Questions?
-#### Please feel free to ask now. 
+### Thank you for attending this workshop. You can ask any questions you may have now. 
 
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
