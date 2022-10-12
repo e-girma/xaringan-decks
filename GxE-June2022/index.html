@@ -4,7 +4,7 @@
     <title>GxE Analysis Workshop</title>
     <meta charset="utf-8" />
     <meta name="author" content="Ellena Girma" />
-    <script src="index_files/header-attrs-2.14/header-attrs.js"></script>
+    <script src="index_files/header-attrs-2.17/header-attrs.js"></script>
     <script src="index_files/clipboard-2.0.6/clipboard.min.js"></script>
     <link href="index_files/shareon-1.4.1/shareon.min.css" rel="stylesheet" />
     <script src="index_files/shareon-1.4.1/shareon.min.js"></script>
@@ -28,7 +28,7 @@ class: center, middle, inverse, title-slide
 ### Ellena Girma
 ]
 .date[
-### 2022/05/27 (updated: 2022-06-23)
+### 2022/05/27 (updated: 2022-10-12)
 ]
 
 ---
@@ -46,7 +46,11 @@ class: middle, center
 
 
 
-### Hello Everyone! My name is Ellena Girma and I am a data analyst intern at CIAT. 
+### Hello, Everyone! 
+
+--
+
+#### My name is Ellena Girma and I am a breeding data systems and analytics specialist at the Alliance Bioversity International - CIAT.
 
 --
 
@@ -54,7 +58,7 @@ class: middle, center
 
 --
 
-#### I will take you through the workflow that I use to run my GxE analysis. For each part, I will cover the main functions that I use and what outputs/results you can expect to get.
+#### I will take you through the workflow that I use to run my GxE analysis for multi environment trials. For each part, I will cover the main functions that I use and what outputs/results you can expect to get.
 
 ---
 
@@ -62,9 +66,9 @@ class: middle, center
 
 .pull-left[
 #### Understanding Genotype-Environment (GxE) Interaction
-* GXE interaction: the interaction of genotypes and environmental conditions and its joint effect on the traits being selected
+* GXE interaction: the interaction of genotypes and environmental conditions and its joint effect on the traits of interest
 
-* Is there a pattern of phenotypic expression of the selected trait across various environmental conditions? 
+* Is there a pattern of phenotypic expression of a trait across various environmental conditions? 
 ]
 
 --
@@ -104,7 +108,8 @@ class: middle, center
 
 ## Let's take a quick tour of R. 
 
-
+---
+class: middle, center
 
 ## For this workshop, we'll be focusing on the metan package.
 
@@ -125,7 +130,7 @@ library(metan)
 library(tidyverse)
 
 #importing a csv file using the read.csv() function
-bean_data &lt;- read.csv("C:/Users/eruph/Documents/TB/Importing_Blog/csvfile.csv", 
+bean_data &lt;- read.csv(here("GxE-June2022", "csvfile.csv"), 
                       header=TRUE,
                       colClasses = c(rep("factor", 3), rep("numeric", 5)))
 ```
@@ -139,15 +144,15 @@ class: middle
 
 --
 
-EDA allows us to:
+Some EDA tasks:
 
-* find outliers
+* finding outliers and missing values
 
-* see how our data is distributed
+* looking at how our data is distributed
 
-* see the relationship between variables
+* looking at the relationship between variables
 
-* get summary statistics for each variable of interest
+* getting summary statistics for each variable of interest
 
 ---
 
@@ -157,46 +162,8 @@ EDA allows us to:
 .panel[.panel-name[R Code]
 
 ```r
-#summary of data
-summary &lt;- summary(bean_data)
-
-#count number of fields that are missing
-sum(is.na(bean_data))
-```
-
-```
-## [1] 0
-```
-
-```r
 #descriptive stats using metan package
-ds_all &lt;- desc_stat(bean_data, stats= "main")
-```
-]
-
-.panel[.panel-name[summary output]
-
-```r
-print(summary)
-```
-
-```
-##      Site     Rep                Genotype         DF          pods.plant   
-##  Selian:297   1:297   ACC 714        :  9   Min.   :33.00   Min.   : 2.60  
-##  SUA   :297   2:297   Bagara Ompigize:  9   1st Qu.:38.00   1st Qu.: 9.40  
-##  Uyole :297   3:297   Bangaya Akatebe:  9   Median :39.00   Median :13.40  
-##                       Bilfa 4        :  9   Mean   :39.54   Mean   :14.78  
-##                       Bilfa Uyole    :  9   3rd Qu.:42.00   3rd Qu.:18.00  
-##                       Buji           :  9   Max.   :48.00   Max.   :46.60  
-##                       (Other)        :837                                  
-##    seeds.pod           sw            yield       
-##  Min.   :2.600   Min.   :15.30   Min.   : 498.2  
-##  1st Qu.:4.000   1st Qu.:25.50   1st Qu.:1282.2  
-##  Median :4.800   Median :35.00   Median :1601.7  
-##  Mean   :4.816   Mean   :35.22   Mean   :1754.3  
-##  3rd Qu.:5.600   3rd Qu.:42.00   3rd Qu.:2048.9  
-##  Max.   :7.600   Max.   :67.00   Max.   :5152.6  
-## 
+ds_all &lt;- desc_stat(bean_data, stats= "main") 
 ```
 ]
 
@@ -225,7 +192,7 @@ print(ds_all)
 
 .panelset[
 .panel[.panel-name[Code]
-This is for the variable yield. To get potential outliers for another variable, set var to var_name.
+This is for the variable yield. To get potential outliers for another variable, set the var argument to the variable name.
 
 ```r
 #Checking for potential outliers in yield variable
@@ -321,7 +288,7 @@ yo
 
 ## Grand Mean Yield of Genotypes Across Locations
 
-We can see the grand Mean Yield for each genotype across all three locations using the means_by() function.  
+We can see the grand mean yield for each genotype across all three locations using the means_by() function.  
 
 .panelset[
 .panel[.panel-name[R Code]
@@ -434,9 +401,12 @@ class: middle
 
 #### Running an ANOVA allows us to 
 
-* see if genotype main effect, environment main effect and GxE interaction effect are significant
+* Evaluate differences in means among groups
 
-* see which effect contributes most to the variation in performance of the different traits
+    * see if genotype main effect, environment main effect and GxE interaction effect are significant
+
+    * see which effect contributes most to the variation in performance of the different traits
+* Divide the variance into parts to estimate heritability
 
 #### The metan package provides &lt;a href = "https://tiagoolivoto.github.io/metan/reference/index.html"&gt;many functions&lt;/a&gt; that can be used to run ANOVA. Different functions are available based on the ANOVA type (one-way, two-way), type of model (fixed or mixed effect), etc. 
 
@@ -521,14 +491,26 @@ rcbd_anova$DF$anova
 
 ---
 
-## Estimating Variance Components
+## Estimating Heritability
 
-#### Variance components can be calculated using the results from the ANOVA table. Use indexing to get the correct value from the anova table. 
-
-#### anova_table[row_number, col_number]
+#### Variance components can be calculated using the results from the ANOVA table. Using these variance components, we can estimate heritability.
+#### Use indexing to get the correct value from the anova table: anova_table[row_number, col_number]
 
 .panelset[
-.panel[.panel-name[Calculating Values]
+.panel[.panel-name[Calc Values 1]
+
+V of line = (Mean sq of treat - Mean sq of site:treat) / (site*rep)
+
+V of line*site = (Mean sq of site:treat - Mean sq of residual) / (rep)
+
+V of error = mean sq of residuals
+
+H2= Vline / Vline + Vline*site + Verror
+
+H2L= Vline/ (line + (Vline*site/nsites) + (Verror/nsite*nrep) 
+
+]
+.panel[.panel-name[Calc Values 2]
 
 ```r
 #variance of line
@@ -590,7 +572,7 @@ class: middle
 
 --
 
-#### Then the svp argument can be used to create three types of gge biplots. Below are the three options: 
+#### Then the svp argument can be used to create three types of gge models. Below are the three options: 
 
 * svp = "environment"
 
